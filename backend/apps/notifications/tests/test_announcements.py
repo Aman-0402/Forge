@@ -205,3 +205,67 @@ def test_admin_can_edit_any(auth_client, admin_user, cse):
     ann = make(fac, "department", cse)
     res = auth_client(admin_user).patch(f"{URL}{ann.pk}/", {"title": "fixed"}, format="json")
     assert res.status_code == 200
+
+
+# ---------- course audience ----------
+
+
+def test_faculty_posts_to_managed_course_and_enrolled_are_notified(auth_client):
+    from apps.courses.tests.factories import CourseFactory, EnrollmentFactory
+
+    fac = UserFactory(role="faculty")
+    co = UserFactory(role="faculty")
+    course = CourseFactory(instructor=fac)
+    course.co_instructors.add(co)
+    student = UserFactory(role="student")
+    EnrollmentFactory(course=course, student=student)
+    dropped = UserFactory(role="student")
+    EnrollmentFactory(course=course, student=dropped, status="dropped")
+    UserFactory(role="student")
+
+    res = auth_client(fac).post(
+        URL,
+        {"title": "Quiz Friday", "body": "Chapter 2", "audience": "course", "course": course.pk},
+        format="json",
+    )
+    assert res.status_code == 201, res.data
+    assert res.data["course_title"] == course.title
+    notified = set(Notification.objects.values_list("recipient_id", flat=True))
+    assert notified == {student.pk, co.pk}
+
+
+def test_faculty_cannot_post_to_unmanaged_course(auth_client):
+    from apps.courses.tests.factories import CourseFactory
+
+    fac = UserFactory(role="faculty")
+    course = CourseFactory()
+    body = {"title": "t", "body": "b", "audience": "course", "course": course.pk}
+    assert auth_client(fac).post(URL, body, format="json").status_code == 400
+
+
+def test_course_audience_requires_course(auth_client, admin_user):
+    body = {"title": "t", "body": "b", "audience": "course"}
+    res = auth_client(admin_user).post(URL, body, format="json")
+    assert res.status_code == 400 and "course" in res.data["errors"]
+
+
+def test_course_announcement_visibility(auth_client, admin_user):
+    from apps.courses.tests.factories import CourseFactory, EnrollmentFactory
+
+    fac = UserFactory(role="faculty")
+    course = CourseFactory(instructor=fac)
+    make_course = Announcement.objects.create(
+        author=admin_user, title="course-post", body="b", audience="course", course=course
+    )
+    enrolled = UserFactory(role="student")
+    EnrollmentFactory(course=course, student=enrolled)
+    outsider = UserFactory(role="student")
+    other_fac = UserFactory(role="faculty")
+
+    assert "course-post" in titles(auth_client(enrolled))
+    assert "course-post" in titles(auth_client(fac))
+    assert "course-post" not in titles(auth_client(outsider))
+    assert "course-post" not in titles(auth_client(other_fac))
+    assert auth_client(enrolled).get(URL, {"course": course.pk}).data["results"][0]["id"] == (
+        make_course.pk
+    )

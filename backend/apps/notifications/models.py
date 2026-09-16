@@ -39,6 +39,7 @@ class Announcement(models.Model):
         FACULTY = "faculty", "Faculty"
         STUDENTS = "students", "Students"
         DEPARTMENT = "department", "Department"
+        COURSE = "course", "Course"
 
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -53,6 +54,13 @@ class Announcement(models.Model):
     )
     department = models.ForeignKey(
         "accounts.Department",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="announcements",
+    )
+    course = models.ForeignKey(
+        "courses.Course",
         on_delete=models.CASCADE,
         null=True,
         blank=True,

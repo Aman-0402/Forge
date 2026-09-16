@@ -7,6 +7,7 @@ from .models import Announcement, Notification
 class AnnouncementSerializer(serializers.ModelSerializer):
     author_name = serializers.SerializerMethodField()
     department_code = serializers.CharField(source="department.code", read_only=True, default=None)
+    course_title = serializers.CharField(source="course.title", read_only=True, default=None)
     published_at = serializers.DateTimeField(required=False)
 
     class Meta:
@@ -18,6 +19,8 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "audience",
             "department",
             "department_code",
+            "course",
+            "course_title",
             "author",
             "author_name",
             "published_at",
@@ -33,15 +36,24 @@ class AnnouncementSerializer(serializers.ModelSerializer):
         return obj.author.get_full_name() or obj.author.email
 
     def validate(self, attrs):
+        from apps.courses.permissions import can_manage_course
+
         inst = self.instance
         audience = attrs.get("audience", inst.audience if inst else Announcement.Audience.ALL)
         department = attrs.get("department", inst.department if inst else None)
+        course = attrs.get("course", inst.course if inst else None)
 
         if audience == Announcement.Audience.DEPARTMENT:
             if department is None:
                 raise serializers.ValidationError({"department": ["Required for this audience."]})
         else:
             attrs["department"] = department = None
+
+        if audience == Announcement.Audience.COURSE:
+            if course is None:
+                raise serializers.ValidationError({"course": ["Required for this audience."]})
+        else:
+            attrs["course"] = course = None
 
         published = attrs.get("published_at", inst.published_at if inst else timezone.now())
         expires = attrs.get("expires_at", inst.expires_at if inst else None)
@@ -50,13 +62,19 @@ class AnnouncementSerializer(serializers.ModelSerializer):
 
         user = self.context["request"].user
         if user.role == "faculty":
-            if audience != Announcement.Audience.DEPARTMENT:
+            if audience == Announcement.Audience.COURSE:
+                if not can_manage_course(user, course):
+                    raise serializers.ValidationError(
+                        {"course": ["You can only post to courses you teach."]}
+                    )
+            elif audience == Announcement.Audience.DEPARTMENT:
+                if not user.department_id or department.pk != user.department_id:
+                    raise serializers.ValidationError(
+                        {"department": ["Faculty can only post to their own department."]}
+                    )
+            else:
                 raise serializers.ValidationError(
-                    {"audience": ["Faculty can only post to their department."]}
-                )
-            if not user.department_id or department.pk != user.department_id:
-                raise serializers.ValidationError(
-                    {"department": ["Faculty can only post to their own department."]}
+                    {"audience": ["Faculty can post to their department or their courses."]}
                 )
         return attrs
 

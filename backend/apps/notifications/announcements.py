@@ -15,10 +15,24 @@ ROLE_AUDIENCE = {
 }
 
 
+def _user_course_ids(user):
+    """Courses whose announcements this user may read: enrolled or teaching."""
+    from apps.courses.models import Course, Enrollment
+    from apps.courses.permissions import ACTIVE_ENROLLMENT
+
+    if user.role == "student":
+        return Enrollment.objects.filter(student=user, status__in=ACTIVE_ENROLLMENT).values(
+            "course_id"
+        )
+    if user.role == "faculty":
+        return Course.objects.filter(Q(instructor=user) | Q(co_instructors=user)).values("pk")
+    return Course.objects.none().values("pk")
+
+
 def visible_announcements(user):
     """Admins see everything. Others see live posts for everyone, their role, their
-    department, plus anything they authored."""
-    qs = Announcement.objects.select_related("author", "department")
+    department, their courses, plus anything they authored."""
+    qs = Announcement.objects.select_related("author", "department", "course")
     if user.role == "admin":
         return qs
     now = timezone.now()
@@ -27,19 +41,30 @@ def visible_announcements(user):
         audience |= Q(audience=ROLE_AUDIENCE[user.role])
     if user.department_id:
         audience |= Q(audience=Announcement.Audience.DEPARTMENT, department_id=user.department_id)
+    audience |= Q(audience=Announcement.Audience.COURSE, course_id__in=_user_course_ids(user))
     live = Q(published_at__lte=now) & (Q(expires_at__isnull=True) | Q(expires_at__gt=now))
-    return qs.filter((audience & live) | Q(author=user))
+    return qs.filter((audience & live) | Q(author=user)).distinct()
 
 
 def recipients(announcement):
     qs = User.objects.filter(is_active=True).exclude(pk=announcement.author_id)
     audience = announcement.audience
     if audience == Announcement.Audience.STUDENTS:
-        qs = qs.filter(role="student")
-    elif audience == Announcement.Audience.FACULTY:
-        qs = qs.filter(role="faculty")
-    elif audience == Announcement.Audience.DEPARTMENT:
-        qs = qs.filter(department_id=announcement.department_id)
+        return qs.filter(role="student")
+    if audience == Announcement.Audience.FACULTY:
+        return qs.filter(role="faculty")
+    if audience == Announcement.Audience.DEPARTMENT:
+        return qs.filter(department_id=announcement.department_id)
+    if audience == Announcement.Audience.COURSE:
+        from apps.courses.models import Enrollment
+        from apps.courses.permissions import ACTIVE_ENROLLMENT
+
+        course = announcement.course
+        enrolled = Enrollment.objects.filter(course=course, status__in=ACTIVE_ENROLLMENT).values(
+            "student_id"
+        )
+        teachers = [course.instructor_id, *course.co_instructors.values_list("pk", flat=True)]
+        return qs.filter(Q(pk__in=enrolled) | Q(pk__in=teachers)).distinct()
     return qs
 
 

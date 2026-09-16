@@ -29,7 +29,7 @@ class AnnouncementViewSet(AuditedModelMixin, viewsets.ModelViewSet):
     serializer_class = AnnouncementSerializer
     permission_classes = [AnnouncementPermission]
     audit_prefix = "announcement"
-    filterset_fields = ["audience", "department"]
+    filterset_fields = ["audience", "department", "course"]
     search_fields = ["title", "body"]
 
     def get_queryset(self):
