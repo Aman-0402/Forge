@@ -1,17 +1,17 @@
 import { lazy, Suspense, type ReactNode } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { AuthProvider, useAuth } from "./auth/AuthContext";
-import { RequireAuth, RequireRole, homeFor } from "./auth/guards";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthContext";
+import { RequireAuth, RequireRole } from "./auth/guards";
 import AnnouncementsPage from "./pages/AnnouncementsPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import HomePage from "./pages/HomePage";
 import Layout from "./pages/Layout";
-import LoginPage from "./pages/LoginPage";
 import MePage from "./pages/MePage";
 import NotificationsPage from "./pages/NotificationsPage";
-import RegisterPage from "./pages/RegisterPage";
 import SetPasswordPage from "./pages/SetPasswordPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import MarketingLayout from "./marketing/MarketingLayout";
+import PublicHome from "./marketing/pages/PublicHome";
 import ApprovalsPage from "./pages/admin/ApprovalsPage";
 import AuditLogPage from "./pages/admin/AuditLogPage";
 import CategoriesPage from "./pages/admin/CategoriesPage";
@@ -40,11 +40,18 @@ const editorPage = (element: ReactNode) => (
   <Suspense fallback={<p className="hint">Loading editor…</p>}>{element}</Suspense>
 );
 
-function RootRedirect() {
-  const { user, loading } = useAuth();
-  if (loading) return <p className="hint">Loading…</p>;
-  return <Navigate to={user ? homeFor(user.role) : "/login"} replace />;
-}
+// Public marketing pages (copied from the dsaclone project). Home ships in the main
+// bundle since it's what an anonymous visitor sees first; the rest lazy-load.
+const Programs = lazy(() => import("./marketing/pages/Programs"));
+const MasterClass = lazy(() => import("./marketing/pages/MasterClass"));
+const HowWeWork = lazy(() => import("./marketing/pages/HowWeWork"));
+const Contact = lazy(() => import("./marketing/pages/Contact"));
+const Techies = lazy(() => import("./marketing/pages/Techies"));
+const MarketingLogin = lazy(() => import("./marketing/pages/Login"));
+const MarketingSignUp = lazy(() => import("./marketing/pages/SignUp"));
+const marketingPage = (element: ReactNode) => (
+  <Suspense fallback={null}>{element}</Suspense>
+);
 
 const only = (roles: ("admin" | "faculty" | "student")[], element: ReactNode) => (
   <RequireRole roles={roles}>{element}</RequireRole>
@@ -55,9 +62,16 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<RootRedirect />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route element={<MarketingLayout />}>
+            <Route path="/" element={<PublicHome />} />
+            <Route path="/programs" element={marketingPage(<Programs />)} />
+            <Route path="/master-class" element={marketingPage(<MasterClass />)} />
+            <Route path="/how-we-work" element={marketingPage(<HowWeWork />)} />
+            <Route path="/contact" element={marketingPage(<Contact />)} />
+            <Route path="/techies" element={marketingPage(<Techies />)} />
+            <Route path="/login" element={marketingPage(<MarketingLogin />)} />
+            <Route path="/register" element={marketingPage(<MarketingSignUp />)} />
+          </Route>
           <Route path="/set-password" element={<SetPasswordPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route

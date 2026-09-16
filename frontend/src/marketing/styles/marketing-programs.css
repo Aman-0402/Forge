@@ -1,0 +1,228 @@
+/* Programs Page specific styling matching the provided UI theme */
+
+.programs-page {
+  padding-bottom: 60px;
+  position: relative;
+}
+
+/* Featured Section */
+.featured-section {
+  margin-bottom: 48px;
+}
+
+.section-title-small {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 24px;
+}
+
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+}
+
+.featured-grid::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+.featured-card {
+  min-width: 260px;
+  border-radius: 32px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s, filter 0.2s;
+  cursor: pointer;
+}
+
+.featured-card:hover {
+  transform: translateY(-4px);
+  filter: brightness(1.1);
+}
+
+.featured-card-inner {
+  border-radius: 24px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.featured-title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #fff;
+}
+
+/* Specific Colors for Featured Cards */
+.featured-card.dsa {
+  background-color: #0b221b;
+  border-color: rgba(16, 185, 129, 0.15);
+}
+.featured-card.dsa .featured-card-inner {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.featured-card.lld {
+  background-color: #242018;
+  border-color: rgba(212, 178, 140, 0.15);
+}
+.featured-card.lld .featured-card-inner {
+  background: linear-gradient(135deg, #e3cdb1 0%, #baa382 100%);
+  color: white;
+}
+
+.featured-card.all-problems {
+  background-color: #170d2e;
+  border-color: rgba(124, 58, 237, 0.15);
+}
+.featured-card.all-problems .featured-card-inner {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  color: white;
+}
+
+.featured-card.oops {
+  background-color: #281023;
+  border-color: rgba(217, 70, 239, 0.15);
+}
+.featured-card.oops .featured-card-inner {
+  background: linear-gradient(135deg, #e879f9 0%, #c026d3 100%);
+  color: white;
+}
+
+
+/* Course List Section */
+.course-section {
+  margin-bottom: 48px;
+}
+
+.course-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.dsa-course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.dsa-course-card {
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 42%),
+    rgba(17, 17, 17, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.26);
+  transition: border-color 0.2s, background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.dsa-course-card:hover {
+  background-color: rgba(22, 22, 22, 0.92);
+  transform: translateY(-6px);
+  box-shadow: 0 22px 64px rgba(0, 0, 0, 0.36);
+}
+
+.dsa-course-card-indicator {
+  position: absolute;
+  left: 0;
+  top: 28px;
+  width: 4px;
+  height: 24px;
+  border-radius: 0 4px 4px 0;
+}
+
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  padding-left: 12px;
+}
+
+.course-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.course-desc {
+  font-size: 14px;
+  color: #9ca3af;
+  margin-bottom: 24px;
+  padding-left: 12px;
+  flex: 1;
+}
+
+.course-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: transparent;
+  text-decoration: none;
+  display: block;
+}
+
+/* Course Card Color Variants */
+.dsa-course-card.teal:hover { border-color: rgba(16, 185, 129, 0.3); }
+.dsa-course-card.teal .dsa-course-card-indicator { background-color: #10b981; }
+.dsa-course-card.teal .course-btn { 
+  background-color: rgba(16, 185, 129, 0.1); 
+  border-color: rgba(16, 185, 129, 0.15); 
+  color: #10b981; 
+}
+.dsa-course-card.teal .course-btn:hover {
+  background-color: rgba(16, 185, 129, 0.15); 
+  border-color: rgba(16, 185, 129, 0.3); 
+}
+
+.dsa-course-card.magenta:hover { border-color: rgba(217, 70, 239, 0.3); }
+.dsa-course-card.magenta .dsa-course-card-indicator { background-color: #d946ef; }
+.dsa-course-card.magenta .course-btn { 
+  background-color: rgba(217, 70, 239, 0.1); 
+  border-color: rgba(217, 70, 239, 0.15); 
+  color: #d946ef; 
+}
+.dsa-course-card.magenta .course-btn:hover {
+  background-color: rgba(217, 70, 239, 0.15); 
+  border-color: rgba(217, 70, 239, 0.3); 
+}
+
+.course-icon-btn {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.course-icon-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}

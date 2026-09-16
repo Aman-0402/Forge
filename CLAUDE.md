@@ -10,7 +10,7 @@ This file overrides the parent-directory `CLAUDE.md` (which belongs to a differe
 
 ## Stack
 - Backend: Python 3.10+, Django 5, Django REST Framework, SimpleJWT, MySQL (local server is MariaDB 12.3, db `forge_db`), managed with `uv` (`backend/`).
-- Frontend: React 19 + TypeScript + Vite, react-router-dom, axios (`frontend/`). Plain-CSS design system in `src/index.css` (tokens at top; content max width 1450px). No UI library until Phase 5.
+- Frontend: React 19 + TypeScript + Vite, react-router-dom, axios (`frontend/`). Plain-CSS design system in `src/index.css` (tokens at top; content max width 1450px) for the authenticated app. Public marketing pages (`/`, `/programs`, etc.) live in `src/marketing/` — copied from the sibling `dsaclone` project, own dark theme scoped under `.marketing-site`, uses framer-motion/lucide-react/ogl. See agent.md decisions log.
 - Code judge: Judge0 CE via Docker Compose (`infra/judge0/`).
 - Shell: PowerShell on Windows 11.
 

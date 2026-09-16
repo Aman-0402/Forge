@@ -38,7 +38,7 @@
 - [x] One-time set-password links replace temporary passwords (invite, admin reset, forgot password) + frontend `/set-password` and `/forgot-password`.
 - [~] Upload hardening: size limits and random filenames done earlier. Private uploads (course content, assignment briefs, submissions) now download only through signed, expiring `/api/v1/files/` links; dev `/media/` serves avatars and thumbnails only; prod uses `PROTECTED_MEDIA_NGINX_PREFIX` + X-Accel-Redirect. Content-type sniffing still open.
 - [ ] Judge0 not exposed publicly; backend-only network.
-- [ ] Dependency audit: `uv pip audit` / `npm audit`.
+- [x] Dependency audit (2026-09-17): `pip-audit` on the backend and `npm audit` on the frontend — 0 known vulnerabilities on both. Re-run before deployment and periodically after.
 - [ ] Run `/security-review` on the branch; fix findings.
 - [x] Logging: `RequestIDMiddleware` stamps every request (and every log line it produces) with an id, echoed as `X-Request-ID`; console format in dev, JSON (`apps/core/logging.py`) in prod. Error tracking hook: set `SENTRY_DSN` + `uv sync --extra sentry`, optional.
 
@@ -58,7 +58,8 @@
 - [ ] Runbook `infra/RUNBOOK.md`: deploy, rollback, migrate, backup/restore, rotate secrets, Judge0 restart.
 
 ## 5.7 Frontend upgrade
-- [ ] Add Tailwind CSS + a component kit (shadcn/ui or similar), `@tanstack/react-query` for server state, form library (`react-hook-form` + `zod`).
+- [x] Public marketing site (2026-09-17): `/`, `/programs`, `/master-class`, `/how-we-work`, `/contact`, `/techies` are a literal copy of the sibling `dsaclone` project's pages (`frontend/src/marketing/`, dark glassmorphism theme, framer-motion, lucide-react, ogl). `/login` and `/register` reuse dsaclone's visuals, wired to the real API and the required `PasswordInput` eye-toggle. Scoped under `.marketing-site` so it can't affect the authenticated app's own steel design — see agent.md decisions log. The authenticated app keeps plain CSS, no Tailwind/component kit added.
+- [ ] Add Tailwind CSS + a component kit (shadcn/ui or similar), `@tanstack/react-query` for server state, form library (`react-hook-form` + `zod`) — for the authenticated app only, still deferred.
 - [ ] Responsive layout shell: sidebar + top bar, role-based nav, mobile drawer.
 - [ ] Rebuild pages per role with proper UX: dashboards, course viewer (video player, PDF viewer), exam attempt screen (question palette, timer, full-screen mode, integrity prompts), coding page (Monaco, split panes, verdict panel), grading queues, reports with charts.
 - [ ] Accessibility pass (keyboard nav, labels, contrast). Cross-browser check (Chrome, Edge, Firefox, Safari iOS).

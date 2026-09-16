@@ -1,0 +1,100 @@
+/* Copied from dsaclone/src/index.css. Scoped under .marketing-site (applied to the
+   wrapper in MarketingLayout.tsx) instead of :root/html/body/* so it never affects
+   the authenticated app, which keeps its own design system (src/index.css). See
+   agent.md decisions log ("marketing site CSS scoped under .marketing-site"). */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+.marketing-site {
+  --bg-primary: #07090a;
+  --bg-secondary: #101416;
+  --bg-tertiary: #1b2023;
+
+  --accent-primary: #facc15;
+  --accent-hover: #eab308;
+  --accent-cyan: #22d3ee;
+  --accent-emerald: #34d399;
+  --accent-pink: #f472b6;
+
+  --text-primary: #f9fafb;
+  --text-secondary: #929ba1;
+  --text-muted: #596269;
+
+  --border-color: #27272a;
+  --border-hover: #3f3f46;
+
+  --sidebar-width: 280px;
+  --header-height: 72px;
+
+  font-family: 'Manrope', sans-serif;
+  background: #07090a;
+  color: var(--text-primary);
+  line-height: 1.5;
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+.marketing-site *,
+.marketing-site *::before,
+.marketing-site *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.marketing-site::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -4;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,.32), transparent 55%);
+}
+
+.marketing-site ::selection {
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+.marketing-site a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.marketing-site ul {
+  list-style: none;
+}
+
+.marketing-site button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+.marketing-site :focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-site *, .marketing-site *::before, .marketing-site *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+.marketing-site .glass-panel {
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, backdrop-filter;
+}

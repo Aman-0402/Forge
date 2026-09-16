@@ -69,7 +69,8 @@
 ## In progress
 
 - Phase 4 live verification — waiting for Docker Desktop (see Blocked and `phases/PHASE-4-coding-portal.md` "Still to verify").
-- Phase 5: security hardening (done so far: session revocation, forced password change in the API, login lockout, one-time invite/reset links, forgot password, signed expiring file links, scheduled announcement delivery, prod settings + JSON logging + request-id middleware), dashboards + reports, email + certificates, performance checks, deployment + CI, frontend pages, UAT docs.
+- Phase 5: security hardening done (session revocation, forced password change in the API, login lockout, one-time invite/reset links, forgot password, signed expiring file links, scheduled announcement delivery, prod settings + JSON logging + request-id middleware). Dependency audit done (2026-09-17, `pip-audit` + `npm audit`, 0 vulnerabilities). Public marketing site added (2026-09-17, see decisions log). Still open: dashboards + reports, email + certificates, performance checks, deployment + CI, remaining frontend pages, accessibility pass, user guides.
+
 ## Left / next actions
 
 1. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
@@ -84,7 +85,8 @@
    - Move judging off the request thread (task queue) if submit latency or volume grows.
    - Run Judge0 on a dedicated host/network in production (containers are privileged).
    - Watch for a transient Windows pytest temp-dir error seen once in Phase 4 (rerun passed).
-5. Minor: oxlint `only-export-components` warnings for small helpers exported next to components (HMR only).
+5. Minor: oxlint `only-export-components` warnings for small helpers exported next to components (HMR only); one more now from the literally-copied `marketing/pages/Home.tsx` (`set-state-in-effect`, unmodified dsaclone code).
+6. Remaining Phase 5 items from this session's request: role dashboards + admin reports, frontend accessibility pass, user guides.
 
 ## Blocked
 
@@ -131,6 +133,8 @@
 | 2026-09-17 | Scheduled announcements: `delivered_at` claimed by one conditional UPDATE, cron command every minute, no Celery | Exactly-once delivery without a task queue |
 | 2026-09-17 | `prod.py` fails fast (`ImproperlyConfigured`) if `ALLOWED_HOSTS`/`CSRF_TRUSTED_ORIGINS` are unset, instead of silently refusing every request | `DEBUG=False` + empty `ALLOWED_HOSTS` is a silent footgun; caught by a unit test, not by discovering it in production |
 | 2026-09-17 | Request-id middleware runs first in `MIDDLEWARE`, id kept in a contextvar; console format in dev, JSON formatter swapped in only for prod | One id per request in every log line, without threading it through every call site; Sentry made optional (`sentry` extra) rather than a hard dependency |
+| 2026-09-17 | Public marketing site (`/`, `/programs`, `/master-class`, `/how-we-work`, `/contact`, `/techies`) is a literal copy of the sibling `dsaclone` project's pages, under `frontend/src/marketing/`; `/login` and `/register` reuse dsaclone's visuals but are wired to Forge's real auth API (including the required password eye-toggle, via the existing `PasswordInput`) | User asked for the exact same frontend as dsaclone; the authenticated app behind login keeps its own steel design (Phase 2 decision), unchanged |
+| 2026-09-17 | dsaclone's global CSS (`:root`, `body`, `a`, `ul`, `button`, `::selection`) rescoped under a `.marketing-site` wrapper; 5 colliding class names (`.course-card`, `.course-grid`, `.eyebrow`, `.sidebar`, `.stat-label`) renamed with a `dsa-` prefix in the copied files only | Both stylesheets load into one SPA at once; unscoped globals or class collisions would have corrupted the authenticated app's own design (verified with Playwright: dashboard/course pages render unchanged after visiting marketing pages) |
 | 2026-09-16 | No v1.0.0 tag until live Judge0 is verified and client UAT is done | Tag must mean release-ready |
 
 ## Deviations from Doc.md / phase files

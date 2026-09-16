@@ -42,3 +42,7 @@ strix_runs/
 *.local.md
 openapi.yaml
 
+# Reference copy of the separate dsaclone project (its own git repo, not ours).
+# Its pages were copied once into frontend/src/marketing/; see agent.md.
+/dsaclone/
+
