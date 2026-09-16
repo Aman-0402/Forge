@@ -42,6 +42,11 @@ class AnnouncementViewSet(AuditedModelMixin, viewsets.ModelViewSet):
         self._audit("create", serializer.instance, {"audience": serializer.instance.audience})
         announcements.deliver(serializer.instance)
 
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        # A schedule moved to now (or earlier) goes out immediately; delivered posts never resend.
+        announcements.deliver(serializer.instance)
+
 
 class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = NotificationSerializer

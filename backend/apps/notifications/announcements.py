@@ -68,10 +68,27 @@ def recipients(announcement):
     return qs
 
 
+def due_filter(now):
+    return Q(delivered_at__isnull=True, published_at__lte=now) & (
+        Q(expires_at__isnull=True) | Q(expires_at__gt=now)
+    )
+
+
 def deliver(announcement):
-    """Send in-portal notifications if the announcement is already published."""
-    if announcement.published_at > timezone.now():
-        return []
+    """Notify recipients once, if the announcement is live and not yet delivered.
+
+    Returns the created notifications, or None when nothing was claimed.
+
+    The delivered_at claim is a single conditional UPDATE, so concurrent callers
+    (API request and cron command) cannot both send.
+    """
+    now = timezone.now()
+    claimed = Announcement.objects.filter(due_filter(now), pk=announcement.pk).update(
+        delivered_at=now
+    )
+    if not claimed:
+        return None
+    announcement.delivered_at = now
     return notify(
         recipients(announcement),
         f"Announcement: {announcement.title}",
@@ -79,3 +96,9 @@ def deliver(announcement):
         kind=Notification.Kind.ANNOUNCEMENT,
         link=f"/announcements/{announcement.pk}",
     )
+
+
+def deliver_due():
+    """Deliver every scheduled announcement that has gone live. Returns how many."""
+    due = Announcement.objects.filter(due_filter(timezone.now())).select_related("course")
+    return sum(1 for announcement in due if deliver(announcement) is not None)

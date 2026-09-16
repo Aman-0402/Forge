@@ -25,10 +25,11 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "author_name",
             "published_at",
             "expires_at",
+            "delivered_at",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "author", "created_at", "updated_at"]
+        read_only_fields = ["id", "author", "delivered_at", "created_at", "updated_at"]
 
     def get_author_name(self, obj) -> str | None:
         if not obj.author:

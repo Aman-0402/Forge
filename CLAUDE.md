@@ -24,6 +24,7 @@ uv run python manage.py seed_dev             # dev users
 uv run python manage.py seed_demo_courses     # demo courses (after seed_dev)
 uv run python manage.py seed_demo_exams       # demo bank + exams (after seed_demo_courses)
 uv run python manage.py sweep_overdue_attempts # run every minute in production
+uv run python manage.py deliver_scheduled_announcements # run every minute in production
 uv run python manage.py seed_demo_problems    # languages + demo coding problems (after seed_demo_courses)
 uv run python manage.py judge0_check          # live Judge0 smoke test (needs infra/judge0 running)
 

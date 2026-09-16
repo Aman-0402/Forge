@@ -34,6 +34,7 @@
 - [ ] DRF throttling defaults: anon 30/min, user 300/min; login endpoint 10/min per IP.
 - [x] Password validators, account lockout after N failed logins (simple cache counter: 5 fails lock the email 15 min).
 - [x] Session revocation on password change/reset/deactivation (exact `sv` token claim) and `must_change_password` enforced in the API.
+- [x] Scheduled announcements delivered exactly once: `delivered_at` + `deliver_scheduled_announcements` command (cron every minute); UI can schedule posts.
 - [x] One-time set-password links replace temporary passwords (invite, admin reset, forgot password) + frontend `/set-password` and `/forgot-password`.
 - [~] Upload hardening: size limits and random filenames done earlier. Private uploads (course content, assignment briefs, submissions) now download only through signed, expiring `/api/v1/files/` links; dev `/media/` serves avatars and thumbnails only; prod uses `PROTECTED_MEDIA_NGINX_PREFIX` + X-Accel-Redirect. Content-type sniffing still open.
 - [ ] Judge0 not exposed publicly; backend-only network.

@@ -27,6 +27,7 @@ export type Announcement = {
   author_name: string | null;
   published_at: string;
   expires_at: string | null;
+  delivered_at: string | null;
   created_at: string;
   updated_at: string;
 };

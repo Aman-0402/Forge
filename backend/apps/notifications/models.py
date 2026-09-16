@@ -68,6 +68,8 @@ class Announcement(models.Model):
     )
     published_at = models.DateTimeField(default=timezone.now, db_index=True)
     expires_at = models.DateTimeField(null=True, blank=True)
+    # Set once notifications are sent; scheduled posts stay null until they go live.
+    delivered_at = models.DateTimeField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -65,6 +65,7 @@ export default function AnnouncementsPage() {
                 {" · "}
                 {a.author_name ?? "System"} · {formatDate(a.published_at)}
                 {a.expires_at && ` · until ${formatDate(a.expires_at)}`}
+                {!a.delivered_at && new Date(a.published_at) > new Date() && " · Scheduled, not sent yet"}
               </span>
             </div>
             <p className="pre">{a.body}</p>
@@ -99,6 +100,7 @@ function AnnouncementForm({ onCreated }: { onCreated: () => void }) {
     audience: audiences[0],
     department: isFaculty && user?.department ? String(user.department.id) : "",
     course: "",
+    published_at: "",
     expires_at: "",
   });
   const [error, setError] = useState("");
@@ -115,9 +117,10 @@ function AnnouncementForm({ onCreated }: { onCreated: () => void }) {
         audience: form.audience,
         department: form.audience === "department" ? Number(form.department) : null,
         course: form.audience === "course" ? Number(form.course) : null,
+        ...(form.published_at ? { published_at: new Date(form.published_at).toISOString() } : {}),
         expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
       });
-      setForm({ ...form, title: "", body: "", expires_at: "" });
+      setForm({ ...form, title: "", body: "", published_at: "", expires_at: "" });
       onCreated();
     } catch (err) {
       setError(errorMessage(err));
@@ -180,6 +183,14 @@ function AnnouncementForm({ onCreated }: { onCreated: () => void }) {
           </label>
         )}
         <label>
+          Publish at (optional)
+          <input
+            type="datetime-local"
+            value={form.published_at}
+            onChange={(e) => setForm({ ...form, published_at: e.target.value })}
+          />
+        </label>
+        <label>
           Hide after (optional)
           <input
             type="datetime-local"
@@ -194,7 +205,7 @@ function AnnouncementForm({ onCreated }: { onCreated: () => void }) {
       </label>
       {error && <p className="error">{error}</p>}
       <div className="row">
-        <button disabled={busy}>{busy ? "Posting…" : "Post announcement"}</button>
+        <button disabled={busy}>{busy ? "Posting…" : form.published_at ? "Schedule announcement" : "Post announcement"}</button>
       </div>
     </form>
   );

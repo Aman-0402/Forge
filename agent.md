@@ -69,15 +69,14 @@
 ## In progress
 
 - Phase 4 live verification — waiting for Docker Desktop (see Blocked and `phases/PHASE-4-coding-portal.md` "Still to verify").
-- Phase 5: security hardening (done so far: session revocation, forced password change in the API, login lockout, one-time invite/reset links, forgot password, signed expiring file links), dashboards + reports, email + certificates, performance checks, deployment + CI, frontend pages, UAT docs.
+- Phase 5: security hardening (done so far: session revocation, forced password change in the API, login lockout, one-time invite/reset links, forgot password, signed expiring file links, scheduled announcement delivery), dashboards + reports, email + certificates, performance checks, deployment + CI, frontend pages, UAT docs.
 ## Left / next actions
 
 1. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
 2. Phase 5 hardening items found in Phase 1:
-   - Scheduler to deliver announcements whose `published_at` is in the future.
    - Course completion certificates (deferred from Phase 2).
 3. Phase 5 items found in Phase 3:
-   - Schedule `sweep_overdue_attempts` every minute.
+   - Schedule `sweep_overdue_attempts` and `deliver_scheduled_announcements` every minute (cron container in deployment).
    - Measure exam answer-save latency under gunicorn (target p95 < 300 ms); dev runserver gave 1.3 s at 50 concurrent workers.
    - Confirm integrity-event policy with the client (currently record-only).
    - Optional: partial credit for multi-answer questions, CSV question import.
@@ -129,6 +128,7 @@
 | 2026-09-16 | Phase 5 keeps the plain-CSS design system instead of Tailwind/shadcn | User asked for this look in Phase 2; a rewrite adds churn without new capability |
 | 2026-09-16 | Deployment stays provider-neutral (Docker Compose + runbook); no cloud account used | Cloud and email providers are client decisions |
 | 2026-09-16 | Private uploads served via signed expiring links (6 h), not per-request auth | `<video>`/`<iframe>` cannot send bearer tokens; API already checks access before issuing links |
+| 2026-09-17 | Scheduled announcements: `delivered_at` claimed by one conditional UPDATE, cron command every minute, no Celery | Exactly-once delivery without a task queue |
 | 2026-09-16 | No v1.0.0 tag until live Judge0 is verified and client UAT is done | Tag must mean release-ready |
 
 ## Deviations from Doc.md / phase files
