@@ -4,7 +4,7 @@
 > Design: `Doc.md`. Rules: `rule.md`. Phase plans: `phases/`.
 
 **Last updated:** 2026-09-16
-**Current phase:** Phase 4 — Coding Portal (next up, needs Docker Desktop). Phases 0–3 done.
+**Current phase:** Phase 4 — Coding Portal (in progress). Phases 0–3 done.
 **Repo:** https://github.com/Aman-0402/Forge.git (branch `main`)
 
 ---
@@ -20,7 +20,7 @@
 | 1 | Accounts & Admin (users, roles, departments, audit, announcements) | `[x]` | Done 2026-09-16. 111 tests green. |
 | 2 | Courses (structure, content, enrollment, assignments, progress) | `[x]` | Done 2026-09-16. 203 tests green. Certificates deferred to Phase 5. |
 | 3 | Exams (question bank, scheduling, attempts, grading, results) | `[x]` | Done 2026-09-16. 272 tests green. |
-| 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[ ]` | Next up. Needs Docker Desktop |
+| 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[~]` | Started 2026-09-16. Live Judge0 blocked on Docker Desktop |
 | 5 | Integration, notifications, reports, deploy, frontend upgrade | `[ ]` | |
 
 ---
@@ -60,7 +60,7 @@
 
 ## In progress
 
-- (none)
+- Phase 4: Judge0 infra files, languages, problems + test cases, Judge0 client (mocked in tests), run/submit + verdicts, submission history, leaderboard, frontend with code editor.
 
 ## Left / next actions
 
@@ -81,7 +81,7 @@
 
 ## Blocked
 
-- (none)
+- Live Judge0 execution: Docker Desktop and WSL2 are not installed on this machine (checked 2026-09-16). Needs admin rights and a reboot by the user. Everything else in Phase 4 proceeds with a mocked Judge0.
 
 ---
 
