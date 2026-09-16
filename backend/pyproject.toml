@@ -14,6 +14,19 @@ dependencies = [
     "psycopg[binary]>=3.3.5",
 ]
 
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.dev"
+python_files = ["test_*.py"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["**/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
 [dependency-groups]
 dev = [
     "factory-boy>=3.3.3",
