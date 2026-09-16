@@ -1,0 +1,40 @@
+# Forge LMS
+
+This file overrides the parent-directory `CLAUDE.md` (which belongs to a different project). Everything below applies to `D:\code\GITHUB\Forge` only.
+
+## Read first, every session
+1. `rule.md` — working rules. Commit + push after every unit of work. **No co-author trailers.**
+2. `agent.md` — current status. Update at start and end of work.
+3. `Doc.md` — design, stack, data model, API surface.
+4. `phases/PHASE-N-*.md` — the plan for the active phase.
+
+## Stack
+- Backend: Python 3.10+, Django 5, Django REST Framework, SimpleJWT, PostgreSQL 18, managed with `uv` (`backend/`).
+- Frontend: React 18 + TypeScript + Vite, react-router-dom, axios (`frontend/`). Minimal UI until Phase 5.
+- Code judge: Judge0 CE via Docker Compose (`infra/judge0/`).
+- Shell: PowerShell on Windows 11.
+
+## Commands
+```powershell
+# backend
+cd backend
+uv sync
+uv run python manage.py migrate
+uv run python manage.py runserver
+uv run pytest
+uv run ruff check . ; uv run ruff format .
+
+# frontend
+cd frontend
+npm install
+npm run dev
+npm run build
+```
+
+## Conventions (short form — full list in rule.md)
+- Custom user model `accounts.User` with `role ∈ {admin, faculty, student}`.
+- Business logic in `services.py`; views thin; all API under `/api/v1/`; every list paginated.
+- Permissions from `apps/core/permissions.py`.
+- TDD: failing test → implement → green → commit.
+- Migrations committed; never edit applied ones.
+- Never serialize hidden test cases, correct answers pre-release, or password hashes.

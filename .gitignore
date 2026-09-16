@@ -1,0 +1,36 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+backend/media/
+backend/staticfiles/
+backend/db.sqlite3
+*.log
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Node / Vite
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Infra
+infra/judge0/postgres-data/
+infra/judge0/redis-data/
+*.dump
+*.sql.gz
