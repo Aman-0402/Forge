@@ -135,4 +135,7 @@ CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
 EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@forge.local")
 
+CONTENT_UPLOAD_MAX_MB = {"video": 500, "default": 50}
+ASSIGNMENT_UPLOAD_MAX_MB = 20
+
 JUDGE0_URL = env("JUDGE0_URL", default="http://localhost:2358")

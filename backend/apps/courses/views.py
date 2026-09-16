@@ -129,6 +129,13 @@ class CourseViewSet(AuditedModelMixin, viewsets.ModelViewSet):
         )
         return self._respond(course)
 
+    @extend_schema(responses={200: dict})
+    @action(detail=True, methods=["get"])
+    def tree(self, request, pk=None):
+        from .tree import build_tree
+
+        return Response(build_tree(self.get_object(), request))
+
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         course = self.get_queryset().get(pk=response.data["id"])
