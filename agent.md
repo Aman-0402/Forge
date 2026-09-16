@@ -4,7 +4,7 @@
 > Design: `Doc.md`. Rules: `rule.md`. Phase plans: `phases/`.
 
 **Last updated:** 2026-09-16
-**Current phase:** Phase 4 — Coding Portal (code complete; live Judge0 verification waiting on Docker Desktop). Phases 0–3 done. Phase 5 can start in parallel.
+**Current phase:** Phase 4 — Coding Portal (code complete; live Judge0 verification waiting on Docker Desktop). Phases 0–3 done. Phase 5 in progress.
 **Repo:** https://github.com/Aman-0402/Forge.git (branch `main`)
 
 ---
@@ -21,7 +21,7 @@
 | 2 | Courses (structure, content, enrollment, assignments, progress) | `[x]` | Done 2026-09-16. 203 tests green. Certificates deferred to Phase 5. |
 | 3 | Exams (question bank, scheduling, attempts, grading, results) | `[x]` | Done 2026-09-16. 272 tests green. |
 | 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[~]` | Code complete 2026-09-16, 317 tests green (1 live Judge0 test skipped). Live verification blocked on Docker Desktop. |
-| 5 | Integration, notifications, reports, deploy, frontend upgrade | `[ ]` | |
+| 5 | Integration, notifications, reports, deploy, frontend upgrade | `[~]` | Started 2026-09-16 |
 
 ---
 
@@ -69,6 +69,7 @@
 ## In progress
 
 - Phase 4 live verification — waiting for Docker Desktop (see Blocked and `phases/PHASE-4-coding-portal.md` "Still to verify").
+- Phase 5: security hardening, dashboards + reports, email + certificates, performance checks, deployment + CI, frontend pages, UAT docs.
 ## Left / next actions
 
 1. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
@@ -125,6 +126,9 @@
 | 2026-09-16 | Judge synchronously in the submit request; backend compares output itself | Simplest correct design; independent of Judge0 comparison rules |
 | 2026-09-16 | Monaco bundled locally, lazy-loaded; DOMPurify pinned via npm overrides | No CDN dependency; clears npm audit |
 | 2026-09-16 | Commit commands gated on lint passing | Two lint slips reached commits in Phases 2-4 |
+| 2026-09-16 | Phase 5 keeps the plain-CSS design system instead of Tailwind/shadcn | User asked for this look in Phase 2; a rewrite adds churn without new capability |
+| 2026-09-16 | Deployment stays provider-neutral (Docker Compose + runbook); no cloud account used | Cloud and email providers are client decisions |
+| 2026-09-16 | No v1.0.0 tag until live Judge0 is verified and client UAT is done | Tag must mean release-ready |
 
 ## Deviations from Doc.md / phase files
 
