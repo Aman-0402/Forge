@@ -92,3 +92,48 @@ export const deleteDepartment = async (id: number) => {
 
 export const listAuditLogs = async (q: Query) =>
   (await api.get<Paginated<AuditLog>>("/audit-logs/", { params: cleanQuery(q) })).data;
+
+export type ContactMessage = {
+  id: number;
+  name: string;
+  email: string;
+  message: string;
+  created_at: string;
+};
+
+export const listContactMessages = async (q: Query) =>
+  (await api.get<Paginated<ContactMessage>>("/contact/messages/", { params: cleanQuery(q) })).data;
+
+export type MarketingStat = {
+  id: number;
+  order: number;
+  value: string;
+  suffix: string;
+  description: string;
+};
+
+export type MarketingStatInput = Omit<MarketingStat, "id">;
+
+export const listAllMarketingStats = async () =>
+  (await api.get<MarketingStat[]>("/marketing-stats/")).data;
+
+export const createMarketingStat = async (body: MarketingStatInput) =>
+  (await api.post<MarketingStat>("/marketing-stats/", body)).data;
+
+export const updateMarketingStat = async (id: number, body: Partial<MarketingStatInput>) =>
+  (await api.patch<MarketingStat>(`/marketing-stats/${id}/`, body)).data;
+
+export const deleteMarketingStat = async (id: number) => {
+  await api.delete(`/marketing-stats/${id}/`);
+};
+
+export type SiteSettings = {
+  registration_open: boolean;
+  maintenance_mode: boolean;
+  maintenance_message: string;
+};
+
+export const getSiteSettings = async () => (await api.get<SiteSettings>("/site-settings/")).data;
+
+export const updateSiteSettings = async (body: Partial<SiteSettings>) =>
+  (await api.patch<SiteSettings>("/site-settings/", body)).data;

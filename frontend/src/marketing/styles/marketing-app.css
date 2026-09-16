@@ -15,7 +15,9 @@
   height: var(--header-height);
   padding: 0;
   position: fixed;
-  top: 0;
+  /* Set to the banner's height on .marketing-site when the maintenance banner shows
+     (see MarketingLayout.tsx); 0 otherwise. Not from dsaclone. */
+  top: var(--mkt-banner-offset, 0px);
   left: 0;
   right: 0;
   width: 100%;
@@ -1090,4 +1092,14 @@
 
 .marketing-site .password-field .eye-button:hover {
   color: var(--text-primary);
+}
+
+.marketing-site .notice {
+  background: rgba(250, 204, 21, 0.12);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  color: var(--text-primary);
+  text-align: center;
+  padding: 10px 16px;
+  position: relative;
+  z-index: 5;
 }

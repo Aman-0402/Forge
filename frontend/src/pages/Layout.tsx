@@ -3,6 +3,7 @@ import { Navigate, NavLink, Outlet, useLocation, useNavigate } from "react-route
 import { unreadCount } from "../api/notifications";
 import { useAuth } from "../auth/AuthContext";
 import { homeFor } from "../auth/guards";
+import MaintenanceBanner from "../components/MaintenanceBanner";
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -64,6 +65,9 @@ export default function Layout() {
             <NavLink to="/admin/users">Users</NavLink>
             <NavLink to="/admin/departments">Departments</NavLink>
             <NavLink to="/admin/categories">Categories</NavLink>
+            <NavLink to="/admin/contact-messages">Contact messages</NavLink>
+            <NavLink to="/admin/marketing-stats">Marketing stats</NavLink>
+            <NavLink to="/admin/settings">Site settings</NavLink>
             <NavLink to="/admin/audit-logs">Audit log</NavLink>
           </>
         )}
@@ -88,6 +92,7 @@ export default function Layout() {
       </aside>
 
       <div className="main">
+        <MaintenanceBanner />
         <div className="mobile-bar">
           <button className="secondary small" onClick={() => setMenuOpen((o) => !o)}>
             Menu

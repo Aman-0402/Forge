@@ -7,6 +7,7 @@ from apps.core.files import SignedFileView, public_media
 
 api_v1 = [
     path("files/<str:token>/<str:filename>", SignedFileView.as_view(), name="signed-file"),
+    path("", include("apps.core.urls")),
     path("", include("apps.accounts.urls")),
     path("", include("apps.audit.urls")),
     path("", include("apps.notifications.urls")),

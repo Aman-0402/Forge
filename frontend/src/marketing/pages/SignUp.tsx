@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../api/auth";
 import { errorMessage } from "../../api/client";
 import PasswordInput from "../../components/PasswordInput";
+import { useSiteSettings } from "../../hooks/useSiteSettings";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -24,9 +25,11 @@ const fieldStyle = {
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const settings = useSiteSettings();
   const [form, setForm] = useState({ first_name: "", last_name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const registrationClosed = settings?.registration_open === false;
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [key]: e.target.value });
@@ -60,6 +63,15 @@ export default function SignUp() {
           Join DSA Forge and accelerate your career
         </p>
 
+        {registrationClosed ? (
+          <p style={{ textAlign: "center", color: "var(--text-secondary)" }}>
+            New sign-ups are paused right now. Please check back soon, or{" "}
+            <Link to="/contact" style={{ color: "var(--accent-primary)" }}>
+              contact us
+            </Link>{" "}
+            if it's urgent.
+          </p>
+        ) : (
         <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           <div className="auth-name-row" style={{ display: "flex", gap: "16px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
@@ -109,6 +121,7 @@ export default function SignUp() {
             {busy ? "Creating…" : "Sign Up"}
           </button>
         </form>
+        )}
 
         <p style={{ textAlign: "center", marginTop: "24px", color: "var(--text-secondary)", fontSize: "14px" }}>
           Already have an account?{" "}

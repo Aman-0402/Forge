@@ -61,6 +61,10 @@ Errors use one envelope: `{"detail": "...", "code": "...", "errors": {...}}`.
 | GET | `notifications/unread-count/` | own | |
 | GET / POST, PATCH, DELETE | `announcements/` | any / admin, faculty | Audience `all`, `faculty`, `students`, `department`. Faculty: own department only, own posts only. |
 | POST | `contact/` | anyone | Public contact form. Saves the message and emails/notifies every active admin. |
+| GET | `contact/messages/` | admin | Admin inbox for submitted contact messages, newest first. |
+| GET | `site-settings/` | anyone | `registration_open`, `maintenance_mode`, `maintenance_message`. Always the one singleton row. |
+| PATCH | `site-settings/` | admin | Partial update; takes effect immediately for every visitor, no deploy needed. |
+| GET / POST, PATCH, DELETE | `marketing-stats/` | anyone / admin | The 3 highlight numbers on the public home page. Ordered by `order`. |
 
 ## Courses (`/api/v1/`)
 | Method | Path | Who | Notes |

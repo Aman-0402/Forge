@@ -15,7 +15,10 @@ import PublicHome from "./marketing/pages/PublicHome";
 import ApprovalsPage from "./pages/admin/ApprovalsPage";
 import AuditLogPage from "./pages/admin/AuditLogPage";
 import CategoriesPage from "./pages/admin/CategoriesPage";
+import ContactMessagesPage from "./pages/admin/ContactMessagesPage";
 import DepartmentsPage from "./pages/admin/DepartmentsPage";
+import MarketingStatsPage from "./pages/admin/MarketingStatsPage";
+import SiteSettingsPage from "./pages/admin/SiteSettingsPage";
 import UsersPage from "./pages/admin/UsersPage";
 import AssignmentPage from "./pages/courses/AssignmentPage";
 import CourseFormPage from "./pages/courses/CourseFormPage";
@@ -116,6 +119,9 @@ export default function App() {
             <Route path="/admin/categories" element={only(["admin"], <CategoriesPage />)} />
             <Route path="/admin/approvals" element={only(["admin"], <ApprovalsPage />)} />
             <Route path="/admin/audit-logs" element={only(["admin"], <AuditLogPage />)} />
+            <Route path="/admin/contact-messages" element={only(["admin"], <ContactMessagesPage />)} />
+            <Route path="/admin/marketing-stats" element={only(["admin"], <MarketingStatsPage />)} />
+            <Route path="/admin/settings" element={only(["admin"], <SiteSettingsPage />)} />
 
             {(["admin", "faculty", "student"] as const).map((role) => (
               <Route key={role} path={`/${role}`} element={only([role], <HomePage role={role} />)} />

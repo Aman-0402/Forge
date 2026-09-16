@@ -5,6 +5,7 @@ import {
   Layers3, MessageSquareCode, Network, Sparkles, Star, Target, Terminal, TrendingUp, Users, Zap,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { listMarketingStats, type MarketingStat } from '../../api/public';
 import SoftAurora from '../components/SoftAurora/SoftAurora';
 import neeteshImg from '../assets/mentors/Neetesh.png';
 import himanshuImg from '../assets/mentors/Himanshu.png';
@@ -69,6 +70,53 @@ function Counter({ end, suffix = '' }: { end: number; suffix?: string }) {
   }, [end, inView]);
 
   return <span ref={ref}>{value.toLocaleString('en-IN')}{suffix}</span>;
+}
+
+// Not from dsaclone: these three numbers are set by an admin (Site settings ›
+// Marketing stats) instead of hardcoded, so they stay accurate without a redeploy.
+const OUTCOME_ICONS = [TrendingUp, Users, Award];
+
+function OutcomesBand() {
+  const [stats, setStats] = useState<MarketingStat[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    listMarketingStats()
+      .then((s) => !cancelled && setStats(s))
+      .catch(() => !cancelled && setStats([]));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!stats?.length) return null;
+
+  return (
+    <motion.section
+      className="outcomes-band"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-80px' }}
+      variants={stagger}
+    >
+      {stats.map((stat, i) => {
+        const Icon = OUTCOME_ICONS[i % OUTCOME_ICONS.length];
+        return (
+          <motion.div className="outcome" key={stat.id} variants={reveal} whileHover={{ y: -6 }}>
+            <span className="outcome-icon">
+              <Icon size={26} />
+            </span>
+            <div>
+              <strong>
+                <Counter end={Number(stat.value) || 0} suffix={stat.suffix} />
+              </strong>
+              <span className="outcome-copy">{stat.description}</span>
+            </div>
+          </motion.div>
+        );
+      })}
+    </motion.section>
+  );
 }
 
 function LearningConsole() {
@@ -206,20 +254,7 @@ export default function Home() {
         ))}</div>
       </motion.section>
 
-      <motion.section className="outcomes-band" initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }} variants={stagger}>
-        <motion.div className="outcome" variants={reveal} whileHover={{ y: -6 }}>
-          <span className="outcome-icon"><TrendingUp size={26} /></span>
-          <div><strong><Counter end={95} suffix="%" /></strong><span className="outcome-copy">learn more consistently with guided AI practice</span></div>
-        </motion.div>
-        <motion.div className="outcome" variants={reveal} whileHover={{ y: -6 }}>
-          <span className="outcome-icon"><Users size={26} /></span>
-          <div><strong><Counter end={5000} suffix="+" /></strong><span className="outcome-copy">learners found clarity through mentorship</span></div>
-        </motion.div>
-        <motion.div className="outcome" variants={reveal} whileHover={{ y: -6 }}>
-          <span className="outcome-icon"><Award size={26} /></span>
-          <div><strong><Counter end={85} suffix="%" /></strong><span className="outcome-copy">reported stronger interview confidence</span></div>
-        </motion.div>
-      </motion.section>
+      <OutcomesBand />
 
       <section className="home-section roadmap-section">
         <motion.div className="roadmap-intro" initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} variants={reveal}>

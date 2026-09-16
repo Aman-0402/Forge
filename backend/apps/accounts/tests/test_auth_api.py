@@ -25,6 +25,18 @@ def test_register_creates_student(api_client, password):
     assert User.objects.get(email="new@forge.test").role == "student"
 
 
+def test_register_blocked_when_registration_closed(api_client, password, settings):
+    from apps.core.models import SiteSettings
+
+    SiteSettings.objects.create(pk=1, registration_open=False)
+    res = api_client.post(
+        REGISTER, {"email": "closed@forge.test", "password": password}, format="json"
+    )
+    assert res.status_code == 403
+    assert res.data["code"] == "registration_closed"
+    assert not User.objects.filter(email="closed@forge.test").exists()
+
+
 def test_register_ignores_role_escalation(api_client, password):
     res = api_client.post(
         REGISTER, {"email": "evil@forge.test", "password": password, "role": "admin"}, format="json"

@@ -2,11 +2,13 @@
 // footer, but rendering an <Outlet/> instead of owning its own <Routes>, since Forge's
 // App.tsx already owns the router. Route paths /signup -> /register to match Forge's
 // existing auth routes; everything else is unchanged from dsaclone.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { ArrowUpRight, Code2, Menu, X } from "lucide-react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { homeFor } from "../auth/guards";
+import MaintenanceBanner from "../components/MaintenanceBanner";
+import { useSiteSettings } from "../hooks/useSiteSettings";
 import MarketingFooter from "./components/MarketingFooter";
 import "./styles/marketing-tokens.css";
 import "./styles/marketing-app.css";
@@ -25,6 +27,13 @@ export default function MarketingLayout() {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
+  const settings = useSiteSettings();
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const [bannerOffset, setBannerOffset] = useState(0);
+
+  useEffect(() => {
+    setBannerOffset(settings?.maintenance_mode ? (bannerRef.current?.offsetHeight ?? 0) : 0);
+  }, [settings?.maintenance_mode, settings?.maintenance_message]);
 
   useEffect(() => {
     const updateHeaderState = () => setIsScrolled(window.scrollY > 20);
@@ -50,8 +59,17 @@ export default function MarketingLayout() {
   }, [isMobileMenuOpen]);
 
   return (
-    <div className="marketing-site">
+    <div
+      className="marketing-site"
+      style={{ "--mkt-banner-offset": `${bannerOffset}px` } as CSSProperties}
+    >
       <div className="app-container">
+        {/* Outside .main-content on purpose: that container has padding-top reserved
+            for the fixed header, so anything inside it renders below the header, not
+            above it. This needs to sit at the true top of the page. */}
+        <div ref={bannerRef}>
+          <MaintenanceBanner settings={settings} />
+        </div>
         <main className="main-content">
           <header className={`header ${isScrolled ? "header-scrolled" : ""}`}>
             <div className="header-inner">

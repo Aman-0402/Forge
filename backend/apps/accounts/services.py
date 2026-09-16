@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils import timezone
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -9,9 +9,18 @@ from rest_framework_simplejwt.tokens import RefreshToken
 User = get_user_model()
 
 
+class RegistrationClosed(exceptions.PermissionDenied):
+    default_detail = "Registration is closed right now. Please try again later."
+    default_code = "registration_closed"
+
+
 @transaction.atomic
 def register_student(*, email, password, first_name="", last_name=""):
     """Self-registration always yields a student, regardless of input."""
+    from apps.core.models import SiteSettings
+
+    if not SiteSettings.current().registration_open:
+        raise RegistrationClosed()
     return User.objects.create_user(
         email=email,
         password=password,

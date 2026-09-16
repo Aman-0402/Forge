@@ -7,10 +7,16 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
 from apps.audit.mixins import AuditedModelMixin
+from apps.core.permissions import IsAdmin
 
 from . import announcements, services
-from .models import Announcement, Notification
-from .serializers import AnnouncementSerializer, ContactMessageSerializer, NotificationSerializer
+from .models import Announcement, ContactMessage, Notification
+from .serializers import (
+    AnnouncementSerializer,
+    ContactMessageAdminSerializer,
+    ContactMessageSerializer,
+    NotificationSerializer,
+)
 
 User = get_user_model()
 
@@ -35,6 +41,14 @@ class ContactMessageView(generics.CreateAPIView):
                 kind=Notification.Kind.INFO,
                 email=True,
             )
+
+
+class ContactMessagesAdminView(generics.ListAPIView):
+    """Admin inbox for the public contact form."""
+
+    serializer_class = ContactMessageAdminSerializer
+    permission_classes = [IsAdmin]
+    queryset = ContactMessage.objects.all()
 
 
 class AnnouncementPermission(BasePermission):

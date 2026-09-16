@@ -49,3 +49,25 @@ def test_no_admins_still_saves_the_message(api_client):
     res = api_client.post(URL, {"name": "A", "email": "a@b.com", "message": "hello"}, format="json")
     assert res.status_code == 201
     assert ContactMessage.objects.count() == 1
+
+
+# ---------- admin inbox ----------
+
+
+def test_admin_can_list_contact_messages(auth_client, admin_user, api_client):
+    api_client.post(URL, {"name": "A", "email": "a@b.com", "message": "one"}, format="json")
+    api_client.post(URL, {"name": "B", "email": "b@b.com", "message": "two"}, format="json")
+
+    res = auth_client(admin_user).get(f"{URL}messages/")
+    assert res.status_code == 200, res.data
+    names = [m["name"] for m in res.data["results"]]
+    assert names == ["B", "A"]  # newest first
+
+
+def test_non_admin_cannot_list_contact_messages(auth_client, faculty_user, student_user):
+    assert auth_client(faculty_user).get(f"{URL}messages/").status_code == 403
+    assert auth_client(student_user).get(f"{URL}messages/").status_code == 403
+
+
+def test_anonymous_cannot_list_contact_messages(api_client):
+    assert api_client.get(f"{URL}messages/").status_code in (401, 403)

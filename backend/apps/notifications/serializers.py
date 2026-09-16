@@ -15,6 +15,13 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         return value
 
 
+class ContactMessageAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = ["id", "name", "email", "message", "created_at"]
+        read_only_fields = fields
+
+
 class AnnouncementSerializer(serializers.ModelSerializer):
     author_name = serializers.SerializerMethodField()
     department_code = serializers.CharField(source="department.code", read_only=True, default=None)
