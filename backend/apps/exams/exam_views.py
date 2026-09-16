@@ -4,7 +4,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import SAFE_METHODS, BasePermission
+from rest_framework.permissions import SAFE_METHODS, BasePermission, IsAuthenticated
 from rest_framework.response import Response
 
 from apps.audit.mixins import AuditedModelMixin
@@ -90,6 +90,28 @@ class ExamViewSet(AuditedModelMixin, viewsets.ModelViewSet):
     def schedule(self, request, pk=None):
         exam = services.schedule(actor=request.user, exam=self._managed(), request=request)
         return self._respond(exam)
+
+    @extend_schema(request=None, responses=ExamSerializer)
+    @action(detail=True, methods=["post"])
+    def close(self, request, pk=None):
+        from .attempts import close_exam
+
+        exam = close_exam(actor=request.user, exam=self._managed(), request=request)
+        return self._respond(exam)
+
+    @extend_schema(request=None, responses={200: dict, 201: dict})
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def start(self, request, pk=None):
+        from .attempt_serializers import student_attempt_payload
+        from .attempts import start_attempt
+
+        if request.user.role != "student":
+            raise PermissionDenied("Only students can take exams.")
+        attempt, created = start_attempt(student=request.user, exam=self._exam(), request=request)
+        return Response(
+            student_attempt_payload(attempt),
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
 
     @extend_schema(request=None, responses=ExamSerializer)
     @action(detail=True, methods=["post"])
