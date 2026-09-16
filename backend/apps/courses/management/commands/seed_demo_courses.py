@@ -60,7 +60,7 @@ COURSES = [
         "category": "Programming",
         "status": "published",
         "mode": "open",
-        "description": "Write clear Python: data types, control flow, functions, files and modules.",
+        "description": "Write clear Python: types, control flow, functions, files and modules.",
         "modules": {
             "Getting started": {
                 "Setup": ["Installing Python", "Your first script"],
