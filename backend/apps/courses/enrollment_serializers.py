@@ -63,3 +63,29 @@ class BulkEnrollResultSerializer(serializers.Serializer):
     enrolled = serializers.ListField(child=serializers.IntegerField())
     already_enrolled = serializers.ListField(child=serializers.IntegerField())
     invalid = serializers.ListField(child=serializers.IntegerField())
+
+
+class CourseProgressRowSerializer(serializers.ModelSerializer):
+    student_detail = StudentBriefSerializer(source="student", read_only=True)
+    completed_lessons = serializers.IntegerField(read_only=True)
+    total_lessons = serializers.SerializerMethodField()
+    last_activity = serializers.DateTimeField(read_only=True, allow_null=True)
+
+    class Meta:
+        model = Enrollment
+        fields = [
+            "id",
+            "student",
+            "student_detail",
+            "status",
+            "progress_percent",
+            "completed_lessons",
+            "total_lessons",
+            "enrolled_at",
+            "completed_at",
+            "last_activity",
+        ]
+        read_only_fields = fields
+
+    def get_total_lessons(self, obj) -> int:
+        return self.context.get("total_lessons", 0)

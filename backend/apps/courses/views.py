@@ -1,7 +1,7 @@
-from django.db.models import Count, Q
+from django.db.models import Count, Max, Q
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import status, viewsets
+from drf_spectacular.utils import OpenApiParameter, extend_schema, inline_serializer
+from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
@@ -14,6 +14,7 @@ from . import enrollment, services
 from .enrollment_serializers import (
     BulkEnrollResultSerializer,
     BulkEnrollSerializer,
+    CourseProgressRowSerializer,
     EnrollmentSerializer,
 )
 from .models import Category, Course, Enrollment
@@ -22,6 +23,7 @@ from .permissions import (
     CanCreateCourse,
     IsCourseManagerOrReadOnly,
     can_manage_course,
+    get_enrollment,
 )
 from .serializers import CategorySerializer, CourseSerializer, RejectSerializer
 
@@ -200,6 +202,62 @@ class CourseViewSet(AuditedModelMixin, viewsets.ModelViewSet):
         page = self.paginate_queryset(qs.order_by("student__email"))
         serializer = EnrollmentSerializer(page, many=True, context={"request": request})
         return self.get_paginated_response(serializer.data)
+
+    # --- progress ---
+
+    @extend_schema(responses=CourseProgressRowSerializer(many=True))
+    @action(detail=True, methods=["get"])
+    def progress(self, request, pk=None):
+        from .progress import total_lessons
+
+        course = self._manager_course()
+        total = total_lessons(course)
+        qs = (
+            Enrollment.objects.filter(course=course, status__in=ACTIVE_ENROLLMENT)
+            .select_related("course__instructor", "student__student_profile")
+            .annotate(
+                completed_lessons=Count(
+                    "lesson_progress",
+                    filter=Q(lesson_progress__completed_at__isnull=False),
+                    distinct=True,
+                ),
+                last_activity=Max("lesson_progress__updated_at"),
+            )
+            .order_by("-progress_percent", "student__email")
+        )
+        page = self.paginate_queryset(qs)
+        serializer = CourseProgressRowSerializer(
+            page, many=True, context={"request": request, "total_lessons": total}
+        )
+        return self.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        responses=inline_serializer(
+            "MyCourseProgress",
+            {
+                "progress_percent": serializers.IntegerField(),
+                "status": serializers.CharField(),
+                "completed_lesson_ids": serializers.ListField(child=serializers.IntegerField()),
+                "total_lessons": serializers.IntegerField(),
+            },
+        )
+    )
+    @action(detail=True, methods=["get"], url_path="progress/me")
+    def my_progress(self, request, pk=None):
+        from .progress import completed_lesson_ids, total_lessons
+
+        course = self._course()
+        record = get_enrollment(request.user, course)
+        if record is None:
+            raise PermissionDenied("You are not enrolled in this course.")
+        return Response(
+            {
+                "progress_percent": record.progress_percent,
+                "status": record.status,
+                "completed_lesson_ids": completed_lesson_ids(record),
+                "total_lessons": total_lessons(course),
+            }
+        )
 
     @extend_schema(responses={200: dict})
     @action(detail=True, methods=["get"])

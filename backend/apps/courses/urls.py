@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from . import enrollment_views as ev
+from . import progress_views as pv
 from . import structure_views as sv
 from . import views
 
@@ -34,6 +35,8 @@ urlpatterns = [
     path("chapters/<int:pk>/", sv.ChapterViewSet.as_view(DETAIL), name="chapter-detail"),
     *nested("chapters", "chapter_pk", "lessons", sv.LessonViewSet, "lesson"),
     path("lessons/<int:pk>/", sv.LessonViewSet.as_view(DETAIL), name="lesson-detail"),
+    path("lessons/<int:pk>/complete/", pv.CompleteLessonView.as_view(), name="lesson-complete"),
+    path("lessons/<int:pk>/position/", pv.LessonPositionView.as_view(), name="lesson-position"),
     *nested("lessons", "lesson_pk", "content", sv.ContentItemViewSet, "content"),
     path("content/<int:pk>/", sv.ContentItemViewSet.as_view(DETAIL), name="content-detail"),
     *router.urls,
