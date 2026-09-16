@@ -16,6 +16,7 @@ backend/db.sqlite3
 .env
 .env.*
 !.env.example
+user.md
 
 # Node / Vite
 node_modules/
