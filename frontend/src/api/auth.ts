@@ -11,7 +11,9 @@ export type User = {
   phone: string;
   avatar: string | null;
   department: { id: number; name: string; code: string } | null;
+  profile: Record<string, string | number | null> | null;
   must_change_password: boolean;
+  is_active: boolean;
   date_joined: string;
   last_login: string | null;
 };
@@ -34,6 +36,10 @@ export async function register(data: {
 export async function fetchMe(): Promise<User> {
   const res = await api.get<User>("/auth/me/");
   return res.data;
+}
+
+export async function changePassword(old_password: string, new_password: string): Promise<void> {
+  await api.post("/auth/change-password/", { old_password, new_password });
 }
 
 export async function logout(): Promise<void> {

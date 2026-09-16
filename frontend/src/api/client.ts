@@ -67,13 +67,21 @@ api.interceptors.response.use(
   },
 );
 
-export type ApiError = { detail: string; code: string; errors: Record<string, string[]> };
+export type ApiError = { detail: string; code: string; errors: Record<string, unknown> };
+
+function flatten(value: unknown): string {
+  if (Array.isArray(value)) return value.map(flatten).join(" ");
+  if (value && typeof value === "object") {
+    return Object.entries(value)
+      .map(([k, v]) => `${k}: ${flatten(v)}`)
+      .join("; ");
+  }
+  return String(value);
+}
 
 export function errorMessage(err: unknown): string {
   const data = (err as AxiosError<ApiError>)?.response?.data;
   if (!data) return `Cannot reach the API at ${API_URL}. Is the backend running?`;
-  const fields = Object.entries(data.errors ?? {})
-    .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(" ") : String(v)}`)
-    .join("; ");
+  const fields = flatten(data.errors ?? {});
   return fields ? `${data.detail} ${fields}` : data.detail;
 }
