@@ -57,17 +57,30 @@
 
 ## Checklist
 - [ ] Models, migrations, factories.
-- [ ] Permissions: `IsCourseInstructorOrAdmin`, `IsEnrolledStudent`.
-- [ ] Course CRUD + approval flow + tests.
-- [ ] Structure CRUD (module/chapter/lesson/content) + reorder + tree endpoint + tests.
-- [ ] File upload validation + tests (bad ext, too large).
-- [ ] Enrollment: manual, open, auto (signal + management command) + tests.
-- [ ] Progress tracking + recompute + completion + tests.
-- [ ] Assignments + submissions + grading + late logic + notifications + tests.
-- [ ] Audit log on course approve/publish, enrollment changes, grading.
-- [ ] Optional: certificate PDF (reportlab) — do last or defer to Phase 5.
-- [ ] Frontend (minimal): faculty `/faculty/courses` list+create, course editor (nested structure with add/reorder), enrollments page; student `/student/courses`, course viewer (tree + content + mark complete), assignments submit; admin approval queue.
-- [ ] Update `agent.md`; commit + push per feature.
+- [x] Permissions: implemented as helpers in `apps/courses/permissions.py` (`can_manage_course`, `can_view_course`, `can_access_content`, `get_enrollment`) plus `CanCreateCourse`, `IsCourseManagerOrReadOnly`.
+- [x] Course CRUD + approval flow + tests.
+- [x] Structure CRUD (module/chapter/lesson/content) + reorder + tree endpoint + tests.
+- [x] File upload validation + tests (bad ext, too large). Limits in settings `CONTENT_UPLOAD_MAX_MB`, `ASSIGNMENT_UPLOAD_MAX_MB`.
+- [x] Enrollment: manual, open, auto (signal + management command) + tests.
+- [x] Progress tracking + recompute + completion + tests.
+- [x] Assignments + submissions + grading + late logic + notifications + tests.
+- [x] Audit log on course approve/publish, enrollment changes, grading.
+- [-] Optional: certificate PDF — deferred to Phase 5.
+- [x] Frontend: course catalog, create/edit form, course page (content viewer with mark complete, assignments, students progress/roster/add, manage with structure editor and publishing), assignment page (submit + grading), my learning, role home pages, admin approvals and categories. Styled with a plain-CSS design system (user asked for good CSS, 1450px content width).
+- [x] Update `agent.md`; commit + push per feature.
+- [x] Added `course` audience to announcements (planned in Phase 1).
+- [x] `seed_demo_courses` management command for local demo data.
+
+## As built (differences from plan)
+- Endpoint names: `courses/{id}/drop/` (student leaves open course), `courses/{id}/progress/me/`, `lessons/{id}/position/`, `enrollments/{id}/` (DELETE = drop), `submissions/{id}/grade/`, `categories/` CRUD.
+- Course status cannot be PATCHed; it changes only through `submit-for-approval`, `approve`, `reject` (reason required), `archive`. Admins may publish a draft directly.
+- Only draft courses with no enrollments can be deleted; everything else is archived.
+- Students see published courses plus archived courses they are enrolled in. Faculty see published courses plus those they teach.
+- Unenrolled students see the outline; lesson content is locked except `is_preview` lessons.
+- Automatic sync never re-adds a student whose enrollment was dropped.
+- Adding a lesson lowers progress percent but keeps a completed enrollment marked completed.
+- Resubmission replaces the previous submission until it is graded.
+- Uploaded media is served from `/media/` without access checks in dev. Protected media is a Phase 5 hardening item.
 
 ## Definition of done
 - Faculty creates course with 1 module/1 chapter/2 lessons and uploads a PDF; submits for approval; admin approves.

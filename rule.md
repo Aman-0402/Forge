@@ -31,7 +31,7 @@ These rules apply to every session, every agent, every commit. Read `agent.md` f
 
 1. Work follows `phases/PHASE-N-*.md` in order. Do not start Phase N+1 tasks while Phase N has open "must" items, unless `agent.md` records why.
 2. Each phase file has a checklist. Tick items there AND reflect status in `agent.md`.
-3. Backend first. Frontend in early phases is minimal: enough to exercise and demo the API. No design polish until Phase 5+.
+3. Backend first. Frontend pages follow the existing design system so every new page looks consistent; heavier UI work (component library, charts) waits for Phase 5.
 
 ## 4. Backend conventions (Django / DRF)
 
@@ -51,9 +51,9 @@ These rules apply to every session, every agent, every commit. Read `agent.md` f
 ## 5. Frontend conventions (React / Vite)
 
 1. TypeScript. `src/api/` holds axios client + typed calls. Token in memory + refresh token in `localStorage` (revisit at hardening).
-2. Routing with `react-router-dom`. One page per backend feature, minimal styling.
+2. Routing with `react-router-dom`. One page per backend feature, styled with the shared design system.
 3. `credentials` not needed (JWT header), but always send `Authorization: Bearer`.
-4. No UI library until Phase 5. Plain CSS or none.
+4. No UI library until Phase 5. Plain CSS only, using the tokens and classes in `frontend/src/index.css`. Content area max width is 1450px.
 
 ## 6. Security baseline
 

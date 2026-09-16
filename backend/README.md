@@ -59,6 +59,34 @@ Errors use one envelope: `{"detail": "...", "code": "...", "errors": {...}}`.
 | GET | `notifications/unread-count/` | own | |
 | GET / POST, PATCH, DELETE | `announcements/` | any / admin, faculty | Audience `all`, `faculty`, `students`, `department`. Faculty: own department only, own posts only. |
 
+## Courses (`/api/v1/`)
+| Method | Path | Who | Notes |
+|---|---|---|---|
+| GET / POST | `courses/` | any / admin, faculty | Filters `status`, `level`, `categories`, `department`, `instructor`, `search`. Faculty become instructor; admins must pass `instructor`. |
+| GET / PATCH / DELETE | `courses/{id}/` | visible / managers | DELETE only for drafts without enrollments. |
+| POST | `courses/{id}/submit-for-approval/`, `archive/` | managers | |
+| POST | `courses/{id}/approve/`, `reject/` (`{reason}`) | admin | Approve also runs automatic enrollment. |
+| GET | `courses/{id}/tree/` | visible | Whole outline; non-preview lessons locked unless enrolled or manager. |
+| GET / POST | `courses/{id}/modules/`, `modules/{id}/chapters/`, `chapters/{id}/lessons/`, `lessons/{id}/content/` | visible / managers | Content is multipart for files. Kinds: `video`, `pdf`, `ppt`, `doc`, `link`, `text`. |
+| POST | `.../reorder/` with `{ids: [...]}` | managers | Must list every child once. |
+| GET / PATCH / DELETE | `modules/{id}/`, `chapters/{id}/`, `lessons/{id}/`, `content/{id}/` | visible / managers | |
+| POST | `courses/{id}/enroll/`, `courses/{id}/drop/` | student | Open courses only. |
+| GET / POST | `courses/{id}/enrollments/` | managers | POST `{student_ids, batch, department}`. |
+| DELETE | `enrollments/{id}/` | managers | Marks dropped. |
+| GET | `me/enrollments/` | student | `?status=` |
+| POST | `lessons/{id}/complete/`, `lessons/{id}/position/` (`{seconds}`) | enrolled student | |
+| GET | `courses/{id}/progress/`, `courses/{id}/progress/me/` | managers / enrolled student | |
+| GET / POST | `courses/{id}/assignments/` | enrolled, managers / managers | Multipart with optional `attachment`. |
+| GET / PATCH / DELETE | `assignments/{id}/` | enrolled / managers | |
+| POST | `assignments/{id}/submit/` | enrolled student | `file` and/or `text`; resubmit until graded. |
+| GET | `assignments/{id}/submissions/` | managers (all), student (own) | `?graded=true|false` |
+| GET / POST | `submissions/{id}/`, `submissions/{id}/grade/` (`{marks, feedback}`) | owner, managers / managers | |
+| CRUD | `categories/` | any read, admin write | |
+
+Managers = admin, course instructor or co-instructor.
+
+Demo data: `uv run python manage.py seed_demo_courses` (after `seed_dev`) creates DSA101, PY110, DB220 (published) and ML300 (draft) with lessons, enrollments, progress and assignments.
+
 Example CSV for bulk import:
 ```csv
 email,first_name,last_name,role,department_code,roll_number,employee_id

@@ -10,7 +10,7 @@ This file overrides the parent-directory `CLAUDE.md` (which belongs to a differe
 
 ## Stack
 - Backend: Python 3.10+, Django 5, Django REST Framework, SimpleJWT, MySQL (local server is MariaDB 12.3, db `forge_db`), managed with `uv` (`backend/`).
-- Frontend: React 19 + TypeScript + Vite, react-router-dom, axios (`frontend/`). Minimal UI until Phase 5.
+- Frontend: React 19 + TypeScript + Vite, react-router-dom, axios (`frontend/`). Plain-CSS design system in `src/index.css` (tokens at top; content max width 1450px). No UI library until Phase 5.
 - Code judge: Judge0 CE via Docker Compose (`infra/judge0/`).
 - Shell: PowerShell on Windows 11.
 
@@ -20,6 +20,8 @@ This file overrides the parent-directory `CLAUDE.md` (which belongs to a differe
 cd backend
 uv sync
 uv run python manage.py migrate
+uv run python manage.py seed_dev             # dev users
+uv run python manage.py seed_demo_courses     # demo courses (after seed_dev)
 uv run python manage.py runserver
 uv run pytest
 uv run ruff check . ; uv run ruff format .

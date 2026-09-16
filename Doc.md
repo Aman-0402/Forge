@@ -93,7 +93,7 @@ A custom web-based Learning Management System for institutes and universities. O
 | Code judge | **Judge0 CE, self-hosted via Docker Compose** | Matches doc ("Judge0-style"). Sandboxed, 60+ languages. Docker Desktop must be installed (needs WSL2 on Windows Home). |
 | Cache / queue | **Deferred.** Django locmem cache now. Redis + Celery added only when a real need appears (bulk email, heavy grading, leaderboard). | YAGNI. Judge0 ships its own Redis/Postgres inside its compose. |
 | File storage | Local `media/` in dev. `django-storages` + S3-compatible in prod. | Simple now; swap via settings. |
-| Frontend | **React 19 + TypeScript + Vite**, `react-router-dom`, `axios`. Minimal UI at first. | Doc says React. Basic UI to exercise the backend; visual upgrade later. |
+| Frontend | **React 19 + TypeScript + Vite**, `react-router-dom`, `axios`. Plain-CSS design system in `src/index.css` (Archivo / IBM Plex via Google Fonts, sidebar shell, 1450px content area, temper-colour progress bars). No UI library yet. | Doc says React. User asked for a good-looking basic UI in Phase 2; component library still deferred to Phase 5. |
 | Email | Django email backend → console in dev, SMTP/SES in prod | Doc option. |
 | Repo | **Monorepo**: `backend/`, `frontend/`, docs at root | Solo dev; one history. |
 | Tests | `pytest` + `pytest-django` + `factory_boy` | TDD per app. |
@@ -177,8 +177,9 @@ QuestionBank ─< Question  Language ─< CodeSubmission
 |---|---|
 | Auth | `POST auth/register/` (student self-signup) · `POST auth/token/` · `POST auth/token/refresh/` · `GET/PATCH auth/me/` · `POST auth/change-password/` |
 | Users (admin) | `GET/POST users/` · `GET/PATCH/DELETE users/{id}/` (DELETE = deactivate) · `POST users/{id}/reset-password/` · `POST users/bulk-import/` · `departments/` (admin write, all read) |
-| Courses | `categories/` · `courses/` · `courses/{id}/modules/` · `modules/{id}/chapters/` · `chapters/{id}/lessons/` · `lessons/{id}/content/` · `courses/{id}/enroll/` · `courses/{id}/enrollments/` · `courses/{id}/progress/` · `lessons/{id}/complete/` |
-| Assignments | `courses/{id}/assignments/` · `assignments/{id}/submissions/` · `submissions/{id}/grade/` |
+| Courses | `categories/` · `courses/` · `courses/{id}/submit-for-approval/` · `approve/` · `reject/` · `archive/` · `courses/{id}/tree/` · `courses/{id}/modules/` (+`reorder/`) · `modules/{id}/chapters/` · `chapters/{id}/lessons/` · `lessons/{id}/content/` · flat `modules|chapters|lessons|content/{id}/` |
+| Enrollment & progress | `courses/{id}/enroll/` · `courses/{id}/drop/` · `courses/{id}/enrollments/` (GET list, POST bulk add) · `enrollments/{id}/` (DELETE = drop) · `me/enrollments/` · `courses/{id}/progress/` · `courses/{id}/progress/me/` · `lessons/{id}/complete/` · `lessons/{id}/position/` |
+| Assignments | `courses/{id}/assignments/` · `assignments/{id}/` · `assignments/{id}/submit/` · `assignments/{id}/submissions/` (`?graded=`) · `submissions/{id}/` · `submissions/{id}/grade/` |
 | Exams | `question-banks/` · `question-banks/{id}/questions/` · `exams/` · `exams/{id}/questions/` · `exams/{id}/start/` · `attempts/{id}/answer/` · `attempts/{id}/submit/` · `attempts/{id}/integrity-event/` · `attempts/{id}/grade/` · `exams/{id}/results/` · `attempts/{id}/result/` |
 | Coding | `languages/` · `problems/` · `problems/{id}/testcases/` · `problems/{id}/run/` (sample cases only) · `problems/{id}/submit/` · `problems/{id}/submissions/` · `submissions/{id}/` · `problems/{id}/leaderboard/` |
 | Notifications | `notifications/` (`?unread=true`) · `notifications/{id}/read/` · `notifications/read-all/` · `notifications/unread-count/` · `announcements/` |

@@ -4,7 +4,7 @@
 > Design: `Doc.md`. Rules: `rule.md`. Phase plans: `phases/`.
 
 **Last updated:** 2026-09-16
-**Current phase:** Phase 2 — Courses (in progress). Phases 0 and 1 done.
+**Current phase:** Phase 3 — Exams (next up). Phases 0, 1 and 2 done.
 **Repo:** https://github.com/Aman-0402/Forge.git (branch `main`)
 
 ---
@@ -18,8 +18,8 @@
 |---|---|---|---|
 | 0 | Foundation (repo, Django, DB, JWT, base React) | `[x]` | Done 2026-09-16. 38 tests green. |
 | 1 | Accounts & Admin (users, roles, departments, audit, announcements) | `[x]` | Done 2026-09-16. 111 tests green. |
-| 2 | Courses (structure, content, enrollment, assignments, progress) | `[~]` | Started 2026-09-16 |
-| 3 | Exams (question bank, scheduling, attempts, grading, results) | `[ ]` | |
+| 2 | Courses (structure, content, enrollment, assignments, progress) | `[x]` | Done 2026-09-16. 203 tests green. Certificates deferred to Phase 5. |
+| 3 | Exams (question bank, scheduling, attempts, grading, results) | `[ ]` | Next up |
 | 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[ ]` | Needs Docker Desktop |
 | 5 | Integration, notifications, reports, deploy, frontend upgrade | `[ ]` | |
 
@@ -37,9 +37,19 @@
   - Frontend: admin Users (create/edit/reset/deactivate/bulk import), Departments, Audit log; Notifications with nav badge; Announcements list + post; forced Change password for temp passwords.
   - Verified: pytest 111 passed, ruff clean, OpenAPI schema with no warnings, `npm run build` ok, live API smoke test on local server (admin creates dept + faculty → faculty logs in with temp password → profile/department in `me` → notification received → faculty posts department announcement, blocked from posting to all → change password clears flag → deactivation rejects token). Smoke data deleted afterwards.
 
-## In progress
+- 2026-09-16 — **Phase 2 done.**
+  - `apps.courses`: categories; courses with role-based visibility, instructor/co-instructors, approval flow (submit, approve, reject with reason, archive), delete only empty drafts.
+  - Structure: modules → chapters → lessons → content (video/pdf/ppt/doc/link/text) with nested CRUD, reorder, upload validation by kind and size, preview lessons, one-call course tree with locked content and completion flags.
+  - Enrollment: open self-enroll/drop, manager bulk add by ids/batch/department, roster and removal, my enrollments, automatic enrollment by department or batch (on publish, on user/profile change, `sync_auto_enrollments` command; dropped students are not re-added).
+  - Progress: complete lesson, video position, percent recompute on lesson add/remove, completion notification, manager progress table.
+  - Assignments: attachments, due dates, late rules, submit/resubmit until graded, grading with notification.
+  - Announcements gained a `course` audience.
+  - `seed_demo_courses` command for local demo data (run on local DB).
+  - Frontend redesign on user request ("basic UI, good CSS", "content area 1450px"): plain-CSS design system (steel palette, Archivo + IBM Plex, sidebar shell, temper-gradient progress bars), new login/register frame, course catalog, course form, course page (content viewer, assignments, students, manage + structure editor), assignment submit/grading, my learning, role home pages, admin approvals and categories.
+  - Verified: pytest 203 passed, ruff clean, OpenAPI schema clean, `npm run build` ok, Playwright screenshots via Edge at 1600px and 400px with no console errors, live API smoke of the phase definition of done (faculty builds course + PDF → submit → admin approve → student enroll → 100% completed → assignment submit → graded → notifications → PDF served). Smoke data deleted afterwards.
 
-- Phase 2: course catalog + approval, structure + content, enrollment (manual/open/auto), progress, assignments + grading, course announcements, minimal frontend.
+## In progress
+- (none)
 
 ## Left / next actions
 
@@ -49,8 +59,10 @@
    - Replace temporary passwords in API responses/emails with one-time set-password links.
    - Scheduler to deliver announcements whose `published_at` is in the future.
    - Invalidate access tokens on password reset (currently valid up to 30 min; refresh tokens are revoked).
-3. Minor: oxlint warns `only-export-components` in `frontend/src/auth` (HMR only). Split hooks/helpers into own files when frontend grows.
-4. Minor: git prints LF→CRLF warnings on every commit. Consider a `.gitattributes` with `* text=auto eol=lf`.
+   - Serve course media and submissions through access checks (currently public `/media/` URLs with random names).
+   - Course completion certificates (deferred from Phase 2).
+3. Minor: oxlint `only-export-components` warnings for small helpers exported next to components (HMR only).
+4. Start Phase 3: follow `phases/PHASE-3-exams.md`.
 
 ## Blocked
 
@@ -77,12 +89,16 @@
 | 2026-09-16 | Users are never hard-deleted via API; DELETE deactivates and revokes refresh tokens | Keeps audit history and submissions intact |
 | 2026-09-16 | Admin-created users get a generated temporary password and `must_change_password` | No password travels from admin unless they choose one |
 | 2026-09-16 | Faculty announcements limited to their own department | Plan said course/department scoped; course scope arrives with Phase 2 |
+| 2026-09-16 | Faculty may also post announcements to courses they teach | Phase 2 course audience |
+| 2026-09-16 | Frontend gets a real visual design now (plain CSS, no UI library), content max width 1450px | User request during Phase 2 |
+| 2026-09-16 | `.gitattributes` normalizes line endings to LF | Stops CRLF warnings on Windows |
 
 ## Deviations from Doc.md / phase files
 
 - Frontend scaffold is React 19 + react-router 7 + Vite 8 + TypeScript 6 (current Vite template), not React 18 as first written in `Doc.md`. Doc updated.
 - Database is MySQL (MariaDB 12.3 locally) instead of PostgreSQL. Local dev uses `root` with empty password; never use outside dev.
 - Phase 1 as-built notes are listed at the end of `phases/PHASE-1-accounts-admin.md`.
+- Phase 2 as-built notes are listed at the end of `phases/PHASE-2-courses.md`. Frontend is no longer "minimal" as `rule.md` §5 first said; user asked for a styled UI.
 
 ## Environment notes
 
@@ -100,3 +116,4 @@
 | 2026-09-16 | Phase 0 foundation: backend auth + minimal frontend; switched DB to MySQL | `chore: scaffold django backend with uv`, `feat(accounts): custom user model, jwt auth endpoints, core utilities`, `chore(core): switch database to mysql (mariadb)`, `docs: record mysql decision and phase 0 backend progress`, `chore(frontend): vite react scaffold with jwt auth`, `docs: complete phase 0` |
 | 2026-09-16 | Test accounts, CORS port fix, password eye button | `chore: gitignore local test account file`, `fix(core): allow any localhost port for cors in dev`, `feat(frontend): password visibility toggle and clearer api error` |
 | 2026-09-16 | Phase 1 accounts & admin | `docs: start phase 1`, `feat(audit): audit log model, log_action service, admin api`, `feat(accounts): student/faculty profiles and department api`, `feat(notifications): in-portal notifications with email option`, `feat(accounts): admin user management api`, `feat(notifications): announcements with audience rules`, `feat(frontend): admin users, departments, audit log, notifications, announcements`, `docs: complete phase 1` |
+| 2026-09-16 | Phase 2 courses + frontend design system | `docs: start phase 2`, `feat(courses): course catalog, categories and approval flow`, `chore: normalize line endings with gitattributes`, `feat(courses): modules, chapters, lessons, content and course tree`, `feat(courses): enrollment (self, bulk, automatic rules)`, `feat(courses): lesson completion and course progress`, `feat(courses): assignments, submissions and grading`, `feat(notifications): course audience for announcements`, `chore(courses): seed_demo_courses command for local demo data`, `feat(frontend): course pages and steel design system`, `style(courses): fix line length in demo seed`, `style(frontend): temper gradient fill, full-height sidebar, mobile menu contrast`, `docs: complete phase 2` |
