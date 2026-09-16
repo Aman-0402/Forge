@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { errorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
+import PasswordInput from "../components/PasswordInput";
 import { homeFor } from "../auth/guards";
 
 export default function LoginPage() {
@@ -38,10 +39,10 @@ export default function LoginPage() {
         </label>
         <label>
           Password
-          <input
-            type="password"
+          <PasswordInput
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
             required
           />
         </label>

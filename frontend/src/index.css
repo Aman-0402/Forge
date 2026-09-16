@@ -8,6 +8,11 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; }
 input { padding: 8px; border: 1px solid #bbb; border-radius: 4px; font: inherit; }
 button { padding: 8px 12px; border: 0; border-radius: 4px; background: #2d5bd7; color: #fff; font: inherit; cursor: pointer; }
 button:disabled { opacity: 0.6; }
+.password-field { position: relative; display: flex; }
+.password-field input { flex: 1; padding-right: 44px; }
+.password-field .eye-button { position: absolute; right: 0; top: 0; bottom: 0; width: 40px; display: flex; align-items: center; justify-content: center; background: transparent; color: #555; padding: 0; }
+.password-field .eye-button:hover { color: #1d1f23; }
+.password-field .eye-button:focus-visible { outline: 2px solid #2d5bd7; outline-offset: -2px; }
 .error { color: #b00020; margin: 0; }
 .nav { display: flex; gap: 16px; align-items: center; padding: 10px 16px; background: #fff; border-bottom: 1px solid #ddd; flex-wrap: wrap; }
 .spacer { flex: 1; }

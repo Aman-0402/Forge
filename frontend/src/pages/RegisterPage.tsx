@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/auth";
 import { errorMessage } from "../api/client";
+import PasswordInput from "../components/PasswordInput";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -44,7 +45,12 @@ export default function RegisterPage() {
         </label>
         <label>
           Password
-          <input type="password" value={form.password} onChange={set("password")} required />
+          <PasswordInput
+            value={form.password}
+            onChange={set("password")}
+            autoComplete="new-password"
+            required
+          />
         </label>
         {error && <p className="error">{error}</p>}
         <button disabled={busy}>{busy ? "Creating…" : "Create account"}</button>

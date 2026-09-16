@@ -71,7 +71,7 @@ export type ApiError = { detail: string; code: string; errors: Record<string, st
 
 export function errorMessage(err: unknown): string {
   const data = (err as AxiosError<ApiError>)?.response?.data;
-  if (!data) return "Network error";
+  if (!data) return `Cannot reach the API at ${API_URL}. Is the backend running?`;
   const fields = Object.entries(data.errors ?? {})
     .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(" ") : String(v)}`)
     .join("; ");

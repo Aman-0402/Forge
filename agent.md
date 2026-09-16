@@ -29,6 +29,7 @@
 
 - 2026-09-16 — Read `LMS_Solution_Document.pdf`; wrote `Doc.md`, `rule.md`, `agent.md`, `CLAUDE.md`, `phases/PHASE-0..5`, `.gitignore`. Initial commit + push.
 - 2026-09-16 — **Phase 0 done.** Backend: uv project, split settings, MySQL/MariaDB, custom `User` (email login, `role`), `Department`, JWT auth API (register, token, refresh, logout with blacklist, me, change-password), core permissions/pagination/error envelope, `seed_dev`, Swagger at `/api/docs/`. Frontend: Vite React TS with login, register, profile, role home stubs, route guards, axios token refresh. Verified: pytest 38 passed, ruff clean, OpenAPI schema valid, live smoke test (admin login → me → role=admin, CORS for localhost:5173), `npm run build` ok.
+- 2026-09-16 — Fix: frontend login showed "Network error". Cause: another project (dsaclone) holds port 5173, so Vite moved to 5174, which CORS did not allow. Dev settings now allow any `localhost`/`127.0.0.1` port (prod unchanged); tests added. Frontend: show/hide password eye button on login and register; clearer message when API unreachable. Local test accounts live in gitignored `user.md`.
 
 ## In progress
 
