@@ -89,6 +89,8 @@
 
 ## Blocked
 
+- Strix security scan: Strix 1.6.2 is installed (`uv tool install strix-agent`) but needs Docker and an LLM API key, and neither is available. Run steps are in `docs/security/strix-report.md`.
+
 - Live Judge0 execution: Docker Desktop and WSL2 are not installed on this machine (checked 2026-09-16). Needs admin rights and a reboot by the user. All Phase 4 code is built and tested against a fake Judge0; follow `infra/judge0/README.md`, then the "Still to verify" list in `phases/PHASE-4-coding-portal.md`.
 
 ---

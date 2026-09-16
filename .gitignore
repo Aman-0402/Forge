@@ -36,3 +36,9 @@ infra/judge0/postgres-data/
 infra/judge0/redis-data/
 *.dump
 *.sql.gz
+
+# Strix security scans
+strix_runs/
+*.local.md
+openapi.yaml
+
