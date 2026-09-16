@@ -10,6 +10,7 @@ dependencies = [
     "djangorestframework>=3.18.1",
     "djangorestframework-simplejwt>=5.5.1",
     "drf-spectacular>=0.30.0",
+    "httpx>=0.28.1",
     "mysqlclient>=2.3.0",
     "pillow>=12.3.0",
 ]

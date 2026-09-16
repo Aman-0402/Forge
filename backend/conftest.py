@@ -10,6 +10,16 @@ def _isolated_media(settings, tmp_path):
     settings.MEDIA_ROOT = tmp_path / "media"
 
 
+@pytest.fixture(autouse=True)
+def _clear_cache():
+    """Throttle counters live in the cache; keep tests independent."""
+    from django.core.cache import cache
+
+    cache.clear()
+    yield
+    cache.clear()
+
+
 @pytest.fixture
 def api_client():
     return APIClient()

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "apps.notifications",
     "apps.courses",
     "apps.exams",
+    "apps.coding",
 ]
 
 MIDDLEWARE = [
@@ -113,6 +114,7 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "apps.core.exceptions.api_exception_handler",
+    "DEFAULT_THROTTLE_RATES": {"code_run": "10/min", "code_submit": "5/min"},
 }
 
 SIMPLE_JWT = {
@@ -134,6 +136,9 @@ SPECTACULAR_SETTINGS = {
         "EnrollmentStatusEnum": "apps.courses.models.Enrollment.Status",
         "ExamStatusEnum": "apps.exams.models.Exam.Status",
         "AttemptStatusEnum": "apps.exams.models.Attempt.Status",
+        "ProblemStatusEnum": "apps.coding.models.Problem.Status",
+        "SubmissionStatusEnum": "apps.coding.models.CodeSubmission.Status",
+        "ProblemDifficultyEnum": "apps.coding.models.Problem.Difficulty",
     },
 }
 
@@ -146,4 +151,8 @@ CONTENT_UPLOAD_MAX_MB = {"video": 500, "default": 50}
 ASSIGNMENT_UPLOAD_MAX_MB = 20
 EXAM_GRACE_SECONDS = 10  # network slack after an attempt deadline
 
-JUDGE0_URL = env("JUDGE0_URL", default="http://localhost:2358")
+JUDGE0_URL = env("JUDGE0_URL", default="http://127.0.0.1:2358")
+JUDGE0_AUTH_TOKEN = env("JUDGE0_AUTH_TOKEN", default="")
+JUDGE0_TIMEOUT_SECONDS = env.int("JUDGE0_TIMEOUT_SECONDS", default=30)
+CODE_SOURCE_MAX_BYTES = 64_000
+CODE_OUTPUT_MAX_CHARS = 5_000
