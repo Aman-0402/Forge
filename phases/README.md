@@ -4,7 +4,7 @@ Backend-first build order. Each file has data model, business rules, API, checkl
 
 | # | File | Focus | Est. |
 |---|---|---|---|
-| 0 | [PHASE-0-foundation.md](PHASE-0-foundation.md) | Django + DRF + JWT + custom User, Postgres, OpenAPI, minimal React login | 1–2 d |
+| 0 | [PHASE-0-foundation.md](PHASE-0-foundation.md) | Django + DRF + JWT + custom User, MySQL, OpenAPI, minimal React login | 1–2 d |
 | 1 | [PHASE-1-accounts-admin.md](PHASE-1-accounts-admin.md) | Admin user/department CRUD, profiles, audit log, notifications, announcements | 2 d |
 | 2 | [PHASE-2-courses.md](PHASE-2-courses.md) | Course structure, content upload, enrollment, assignments, progress | 3–4 d |
 | 3 | [PHASE-3-exams.md](PHASE-3-exams.md) | Question banks, scheduling, attempts, timer, auto/manual grading, results | 4 d |

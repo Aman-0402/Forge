@@ -50,7 +50,8 @@
 |---|---|---|
 | 2026-09-16 | Backend = Django 5 + DRF; Frontend = React + TS + Vite | User choice; doc allows Django |
 | 2026-09-16 | Auth = JWT via `djangorestframework-simplejwt` | Matches doc; stateless |
-| 2026-09-16 | DB = PostgreSQL 18 (local, already running) | Doc option; best Django support |
+| 2026-09-16 | ~~DB = PostgreSQL 18~~ superseded | |
+| 2026-09-16 | DB = MySQL via `mysqlclient`; local server on 3306 is MariaDB 12.3, db `forge_db`, user root (dev only) | User choice; doc lists MySQL as option |
 | 2026-09-16 | Python deps via `uv` | Installed, fast, lockfile |
 | 2026-09-16 | Monorepo `backend/` + `frontend/` | Solo dev, one history |
 | 2026-09-16 | Code judge = Judge0 CE self-hosted via Docker Compose | Matches doc; sandboxed |
@@ -66,7 +67,7 @@
 ## Environment notes
 
 - Machine: Windows 11 Home, PowerShell.
-- Installed: Python 3.10.11, uv, Node 22.23.2, PostgreSQL 18 (service `postgresql-x64-18` running), Git.
+- Installed: Python 3.10.11, uv, Node 22.23.2, MariaDB 12.3 on port 3306 (service `MariaDB`), PostgreSQL 18 (unused), Git.
 - Missing: Docker Desktop, Redis.
 - Parent dir `d:\code\GITHUB\CLAUDE.md` belongs to a different project (Innolance LMS, Node/Express). Forge's own `CLAUDE.md` overrides it for this repo.
 

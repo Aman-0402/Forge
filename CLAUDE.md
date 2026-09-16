@@ -9,7 +9,7 @@ This file overrides the parent-directory `CLAUDE.md` (which belongs to a differe
 4. `phases/PHASE-N-*.md` — the plan for the active phase.
 
 ## Stack
-- Backend: Python 3.10+, Django 5, Django REST Framework, SimpleJWT, PostgreSQL 18, managed with `uv` (`backend/`).
+- Backend: Python 3.10+, Django 5, Django REST Framework, SimpleJWT, MySQL (local server is MariaDB 12.3, db `forge_db`), managed with `uv` (`backend/`).
 - Frontend: React 18 + TypeScript + Vite, react-router-dom, axios (`frontend/`). Minimal UI until Phase 5.
 - Code judge: Judge0 CE via Docker Compose (`infra/judge0/`).
 - Shell: PowerShell on Windows 11.

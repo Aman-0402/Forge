@@ -68,9 +68,9 @@ A custom web-based Learning Management System for institutes and universities. O
 | Area | Requirement | How we meet it |
 |---|---|---|
 | Security | RBAC, encrypted credentials, secure sessions | Django password hashing (PBKDF2/Argon2), JWT access+refresh, DRF permission classes per role, HTTPS in prod |
-| Scalability | Growing users/courses/exams | Stateless API (JWT), Postgres, cache layer added when needed, judge service isolated |
+| Scalability | Growing users/courses/exams | Stateless API (JWT), MySQL, cache layer added when needed, judge service isolated |
 | Responsiveness | Desktop, tablet, mobile | React frontend; responsive UI deferred to frontend upgrade phase |
-| Availability | Cloud hosted, automated backups | Docker Compose deployment, `pg_dump` cron; provider chosen at deploy phase |
+| Availability | Cloud hosted, automated backups | Docker Compose deployment, `mysqldump` cron; provider chosen at deploy phase |
 | Performance | Peak load during concurrent exams | Server-side timing, minimal per-answer writes, DB indexes on attempt/answer, pagination everywhere |
 | Audit & Logs | Key action logs | `AuditLog` model + DRF mixin/signals |
 
@@ -87,7 +87,7 @@ A custom web-based Learning Management System for institutes and universities. O
 |---|---|---|
 | Backend | **Python 3.10+, Django 5.x, Django REST Framework** | Team preference (doc allows Django). Mature ORM, admin, auth. |
 | Auth | **JWT — `djangorestframework-simplejwt`** | Matches doc. Stateless. Access (short) + refresh (long) tokens. |
-| Database | **PostgreSQL 18** (already installed locally) | Doc option. Best Django support. |
+| Database | **MySQL** (Django `mysql` backend, `mysqlclient`). Local dev server is MariaDB 12.3, db `forge_db`, utf8mb4, strict mode | User choice; doc lists MySQL. |
 | Python deps | **uv** (`pyproject.toml` + `uv.lock`) | Already installed, fast, reproducible. |
 | API docs | **drf-spectacular** (OpenAPI 3 + Swagger UI) | Contract for frontend; free documentation. |
 | Code judge | **Judge0 CE, self-hosted via Docker Compose** | Matches doc ("Judge0-style"). Sandboxed, 60+ languages. Docker Desktop must be installed (needs WSL2 on Windows Home). |
@@ -113,7 +113,7 @@ A custom web-based Learning Management System for institutes and universities. O
 └──────┬───────────────────┬───────────────────┬───────────────┘
        │                   │                   │ REST
 ┌──────▼──────┐   ┌────────▼────────┐  ┌───────▼─────────────┐
-│ PostgreSQL  │   │ media/ (files)  │  │ Judge0 (Docker)      │
+│ MySQL       │   │ media/ (files)  │  │ Judge0 (Docker)      │
 │ core data   │   │ or S3 in prod   │  │ sandboxed execution  │
 └─────────────┘   └─────────────────┘  └─────────────────────┘
 ```
@@ -226,7 +226,7 @@ Forge/
 | Python 3.10 | installed | OK (Django 5.x supports 3.10+). Consider 3.12 later. |
 | uv | installed | OK |
 | Node 22 + npm | installed | OK |
-| PostgreSQL 18 | installed, service running | Create DB `forge_lms` + user |
+| MySQL / MariaDB 12.3 | installed, running on 3306 | DB `forge_db` exists; root user (dev only) |
 | Git | installed | OK |
 | **Docker Desktop** | **missing** | Install before Phase 4. Windows Home → enable WSL2 first. Needed for Judge0. |
 | Redis | missing | Not needed until deferred features. Will run via Docker when needed. |
@@ -239,7 +239,7 @@ djangorestframework-simplejwt
 django-cors-headers
 django-filter
 drf-spectacular
-psycopg[binary]
+mysqlclient
 django-environ
 Pillow
 httpx                      # Judge0 client (Phase 4)

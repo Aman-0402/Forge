@@ -47,11 +47,11 @@
 
 ## 5.6 Deployment
 - [ ] `backend/Dockerfile` (multi-stage, `uv`, gunicorn), `frontend/Dockerfile` (build → Nginx static).
-- [ ] `infra/docker-compose.yml`: `postgres`, `backend`, `frontend` (Nginx, also reverse proxies `/api/` and `/media/`), `judge0` stack (or `include:` the Judge0 compose), optional `redis`, `celery`.
+- [ ] `infra/docker-compose.yml`: `mysql`, `backend`, `frontend` (Nginx, also reverse proxies `/api/` and `/media/`), `judge0` stack (or `include:` the Judge0 compose), optional `redis`, `celery`.
 - [ ] `.env.production.example`. Secrets via env / provider secret store.
-- [ ] Backups: `pg_dump` cron container or provider snapshots; `media/` to S3 via `django-storages` in prod; restore procedure documented and tested once.
+- [ ] Backups: `mysqldump` cron container or provider snapshots; `media/` to S3 via `django-storages` in prod; restore procedure documented and tested once.
 - [ ] Cloud target chosen with client (AWS / Azure / GCP / single VPS). Provision, DNS, TLS (Caddy or Certbot).
-- [ ] CI (GitHub Actions): on push → `ruff`, `pytest` (Postgres service), `npm run build`. On tag → build and push images.
+- [ ] CI (GitHub Actions): on push → `ruff`, `pytest` (MySQL service), `npm run build`. On tag → build and push images.
 - [ ] Runbook `infra/RUNBOOK.md`: deploy, rollback, migrate, backup/restore, rotate secrets, Judge0 restart.
 
 ## 5.7 Frontend upgrade
