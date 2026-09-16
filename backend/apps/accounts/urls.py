@@ -14,5 +14,7 @@ urlpatterns = [
     path("auth/logout/", views.LogoutView.as_view(), name="auth-logout"),
     path("auth/me/", views.MeView.as_view(), name="auth-me"),
     path("auth/change-password/", views.ChangePasswordView.as_view(), name="auth-change-password"),
+    path("auth/password/set/", views.SetPasswordView.as_view(), name="auth-password-set"),
+    path("auth/password/forgot/", views.ForgotPasswordView.as_view(), name="auth-password-forgot"),
     *router.urls,
 ]

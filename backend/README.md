@@ -41,16 +41,18 @@ uv run ruff check . ; uv run ruff format .
 | POST | `auth/token/refresh/` | `{refresh}` → `{access, refresh}` (rotated) |
 | POST | `auth/logout/` | `{refresh}` → 205, refresh token blacklisted |
 | GET/PATCH | `auth/me/` | Current user. Email and role read-only. |
-| POST | `auth/change-password/` | `{old_password, new_password}` → 204 |
+| POST | `auth/change-password/` | `{old_password, new_password}` → new `{access, refresh}`. All other sessions end. |
+| POST | `auth/password/set/` | `{uid, token, new_password}` from an invite/reset link → `{access, refresh}`. Link works once. |
+| POST | `auth/password/forgot/` | `{email}` → 204 always. Active accounts get a reset link by email. |
 
 Errors use one envelope: `{"detail": "...", "code": "...", "errors": {...}}`.
 
 ## Admin, notifications and announcements (`/api/v1/`)
 | Method | Path | Who | Notes |
 |---|---|---|---|
-| GET/POST | `users/` | admin | Filters `role`, `department`, `is_active`, `search`. Create without `password` returns `temp_password`. |
+| GET/POST | `users/` | admin | Filters `role`, `department`, `is_active`, `search`. Create without `password` emails a one-time set-password link and returns it as `invite_link`. |
 | GET/PATCH/DELETE | `users/{id}/` | admin | DELETE deactivates and revokes tokens. Admins cannot demote or deactivate themselves. |
-| POST | `users/{id}/reset-password/` | admin | Returns `temp_password`. |
+| POST | `users/{id}/reset-password/` | admin | Disables the password, ends sessions, emails and returns `reset_link`. |
 | POST | `users/bulk-import/` | admin | Multipart `file` (CSV). Columns: `email`, `role` required; `first_name`, `last_name`, `phone`, `department_code`, `roll_number`, `batch`, `year`, `employee_id`, `designation` optional. |
 | GET / POST, PATCH, DELETE | `departments/` | any / admin | |
 | GET | `audit-logs/` | admin | Filters `actor`, `action`, `target_type`, `target_id`, `created_after`, `created_before`. |

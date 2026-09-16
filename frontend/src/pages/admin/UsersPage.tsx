@@ -115,7 +115,7 @@ export default function UsersPage() {
                 <td>{u.department_detail?.code ?? "—"}</td>
                 <td>
                   {u.is_active ? "Active" : "Inactive"}
-                  {u.must_change_password && " · temp password"}
+                  {u.must_change_password && " · must change password"}
                 </td>
                 <td>{formatDate(u.last_login)}</td>
                 <td className="actions">
@@ -127,8 +127,8 @@ export default function UsersPage() {
                     onClick={() =>
                       window.confirm(`Reset password for ${u.email}?`) &&
                       run(async () => {
-                        const temp = await resetPassword(u.id);
-                        return `New temporary password for ${u.email}: ${temp}`;
+                        const link = await resetPassword(u.id);
+                        return `Reset link emailed to ${u.email}. It works once: ${link}`;
                       })
                     }
                   >
@@ -223,8 +223,8 @@ function UserForm({
       } else {
         const created = await createUser(body);
         onSaved(
-          created.temp_password
-            ? `${created.email} created. Temporary password: ${created.temp_password}`
+          created.invite_link
+            ? `${created.email} created. Invite link emailed (works once): ${created.invite_link}`
             : `${created.email} created.`,
         );
       }
@@ -285,7 +285,7 @@ function UserForm({
         ))}
       </div>
       {!user && (
-        <p className="hint">A temporary password is generated and shown after saving.</p>
+        <p className="hint">The user gets an email with a one-time link to choose their password.</p>
       )}
       {error && <p className="error">{error}</p>}
       <div className="row">
@@ -345,7 +345,7 @@ function BulkImport({ onDone }: { onDone: () => void }) {
                     <th>Row</th>
                     <th>Email</th>
                     <th>Role</th>
-                    <th>Temporary password</th>
+                    <th>Invite link</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -355,7 +355,7 @@ function BulkImport({ onDone }: { onDone: () => void }) {
                       <td>{c.email}</td>
                       <td>{c.role}</td>
                       <td>
-                        <code>{c.temp_password}</code>
+                        <code className="break">{c.invite_link}</code>
                       </td>
                     </tr>
                   ))}

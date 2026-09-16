@@ -41,7 +41,7 @@ export type AdminUserInput = Partial<{
 }>;
 
 export type BulkImportResult = {
-  created: { row: number; email: string; role: Role; temp_password: string | null }[];
+  created: { row: number; email: string; role: Role; invite_link: string | null }[];
   errors: { row: number; errors: unknown }[];
 };
 
@@ -61,7 +61,7 @@ export const listUsers = async (q: Query) =>
   (await api.get<Paginated<AdminUser>>("/users/", { params: cleanQuery(q) })).data;
 
 export const createUser = async (body: AdminUserInput) =>
-  (await api.post<AdminUser & { temp_password: string | null }>("/users/", body)).data;
+  (await api.post<AdminUser & { invite_link: string | null }>("/users/", body)).data;
 
 export const updateUser = async (id: number, body: AdminUserInput) =>
   (await api.patch<AdminUser>(`/users/${id}/`, body)).data;
@@ -71,7 +71,7 @@ export const deactivateUser = async (id: number) => {
 };
 
 export const resetPassword = async (id: number) =>
-  (await api.post<{ temp_password: string }>(`/users/${id}/reset-password/`)).data.temp_password;
+  (await api.post<{ reset_link: string }>(`/users/${id}/reset-password/`)).data.reset_link;
 
 export const bulkImportUsers = async (file: File) => {
   const form = new FormData();

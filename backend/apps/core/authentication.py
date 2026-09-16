@@ -22,6 +22,24 @@ class PasswordChangeRequired(exceptions.PermissionDenied):
     default_code = "password_change_required"
 
 
+SESSION_CLAIM = "sv"
+
+
+def session_version(user):
+    """Microsecond stamp of the user's last revocation; 0 if never revoked.
+
+    Stamped into every token at issue time. A token whose stamp no longer matches was
+    issued before the latest revocation. Exact, unlike comparing whole-second ``iat``.
+    """
+    cutoff = getattr(user, "tokens_valid_after", None)
+    return int(cutoff.timestamp() * 1_000_000) if cutoff else 0
+
+
+def stamp_token(token, user):
+    token[SESSION_CLAIM] = session_version(user)
+    return token
+
+
 class ForgeJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         result = super().authenticate(request)
@@ -29,8 +47,7 @@ class ForgeJWTAuthentication(JWTAuthentication):
             return None
         user, token = result
 
-        cutoff = getattr(user, "tokens_valid_after", None)
-        if cutoff is not None and int(token.get("iat", 0)) < int(cutoff.timestamp()):
+        if token.get(SESSION_CLAIM, 0) != session_version(user):
             raise TokenRevoked()
 
         if getattr(user, "must_change_password", False):

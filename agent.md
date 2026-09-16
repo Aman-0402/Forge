@@ -69,15 +69,12 @@
 ## In progress
 
 - Phase 4 live verification — waiting for Docker Desktop (see Blocked and `phases/PHASE-4-coding-portal.md` "Still to verify").
-- Phase 5: security hardening, dashboards + reports, email + certificates, performance checks, deployment + CI, frontend pages, UAT docs.
+- Phase 5: security hardening (done so far: session revocation, forced password change in the API, login lockout, one-time invite/reset links, forgot password), dashboards + reports, email + certificates, performance checks, deployment + CI, frontend pages, UAT docs.
 ## Left / next actions
 
 1. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
 2. Phase 5 hardening items found in Phase 1:
-   - Enforce `must_change_password` in the API, not only the frontend.
-   - Replace temporary passwords in API responses/emails with one-time set-password links.
    - Scheduler to deliver announcements whose `published_at` is in the future.
-   - Invalidate access tokens on password reset (currently valid up to 30 min; refresh tokens are revoked).
    - Serve course media and submissions through access checks (currently public `/media/` URLs with random names).
    - Course completion certificates (deferred from Phase 2).
 3. Phase 5 items found in Phase 3:
@@ -114,7 +111,9 @@
 | 2026-09-16 | Frontend kept minimal until Phase 5 | User direction: backend is the main aim |
 | 2026-09-16 | `user.md` (test credentials) gitignored | Repo is public; `rule.md` §1.6 forbids committing secrets |
 | 2026-09-16 | Users are never hard-deleted via API; DELETE deactivates and revokes refresh tokens | Keeps audit history and submissions intact |
-| 2026-09-16 | Admin-created users get a generated temporary password and `must_change_password` | No password travels from admin unless they choose one |
+| 2026-09-16 | ~~Admin-created users get a generated temporary password~~ superseded 2026-09-16 by one-time links | |
+| 2026-09-16 | Invites, admin resets and forgot-password use one-time links (Django token generator, 72 h); account password is unusable until set | No password is ever emailed or shown; link dies once used |
+| 2026-09-16 | Token revocation uses an exact session-version claim (`sv`) instead of comparing whole-second `iat` | `iat` check let tokens issued in the same second as a reset survive |
 | 2026-09-16 | Faculty announcements limited to their own department | Plan said course/department scoped; course scope arrives with Phase 2 |
 | 2026-09-16 | Faculty may also post announcements to courses they teach | Phase 2 course audience |
 | 2026-09-16 | Frontend gets a real visual design now (plain CSS, no UI library), content max width 1450px | User request during Phase 2 |

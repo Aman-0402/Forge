@@ -29,17 +29,17 @@ class DepartmentViewSet(AuditedModelMixin, viewsets.ModelViewSet):
 
 
 class AdminUserCreatedSerializer(AdminUserSerializer):
-    temp_password = serializers.CharField(
-        allow_null=True, read_only=True, help_text="Set when no password was supplied."
+    invite_link = serializers.CharField(
+        allow_null=True,
+        read_only=True,
+        help_text="One-time set-password link, also emailed. Null when a password was supplied.",
     )
 
     class Meta(AdminUserSerializer.Meta):
-        fields = [*AdminUserSerializer.Meta.fields, "temp_password"]
+        fields = [*AdminUserSerializer.Meta.fields, "invite_link"]
 
 
-TempPasswordResponse = inline_serializer(
-    "TempPassword", {"temp_password": serializers.CharField(allow_null=True)}
-)
+ResetLinkResponse = inline_serializer("ResetLink", {"reset_link": serializers.CharField()})
 
 
 class UserAdminViewSet(viewsets.ModelViewSet):
@@ -64,11 +64,11 @@ class UserAdminViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user, temp_password = user_admin.admin_create_user(
+        user, invite_link = user_admin.admin_create_user(
             actor=request.user, data=serializer.validated_data, request=request
         )
         data = dict(self.get_serializer(user).data)
-        data["temp_password"] = temp_password
+        data["invite_link"] = invite_link
         return Response(data, status=status.HTTP_201_CREATED)
 
     def perform_update(self, serializer):
@@ -83,13 +83,13 @@ class UserAdminViewSet(viewsets.ModelViewSet):
         user_admin.deactivate_user(actor=request.user, user=self.get_object(), request=request)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @extend_schema(request=None, responses=TempPasswordResponse)
+    @extend_schema(request=None, responses=ResetLinkResponse)
     @action(detail=True, methods=["post"], url_path="reset-password")
     def reset_password(self, request, pk=None):
-        temp = user_admin.reset_password(
+        link = user_admin.reset_password(
             actor=request.user, user=self.get_object(), request=request
         )
-        return Response({"temp_password": temp})
+        return Response({"reset_link": link})
 
     @extend_schema(
         request={

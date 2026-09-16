@@ -38,7 +38,7 @@ export default function ChangePasswordPage() {
     <section className="narrow">
       <h1>Change password</h1>
       {user?.must_change_password && (
-        <p className="notice">You signed in with a temporary password. Choose a new one to continue.</p>
+        <p className="notice">Your account needs a new password before you continue.</p>
       )}
       <form onSubmit={onSubmit}>
         <label>

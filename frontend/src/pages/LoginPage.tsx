@@ -52,6 +52,9 @@ export default function LoginPage() {
         <button disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
       </form>
       <p className="hint">
+        <Link to="/forgot-password">Forgot password?</Link>
+      </p>
+      <p className="hint">
         Student without an account? <Link to="/register">Create one</Link>
       </p>
     </AuthFrame>

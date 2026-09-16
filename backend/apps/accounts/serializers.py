@@ -196,5 +196,32 @@ class ChangePasswordSerializer(serializers.Serializer):
         return value
 
 
+class SetPasswordSerializer(serializers.Serializer):
+    """Choose a password from a one-time invite or reset link."""
+
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        from .password_links import user_for_link
+
+        user = user_for_link(attrs["uid"], attrs["token"])
+        if user is None:
+            raise serializers.ValidationError(
+                {"token": ["This link is invalid or has expired. Ask for a new one."]}
+            )
+        try:
+            validate_password(attrs["new_password"], user=user)
+        except Exception as exc:
+            raise serializers.ValidationError({"new_password": list(exc.messages)}) from exc
+        attrs["user"] = user
+        return attrs
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()

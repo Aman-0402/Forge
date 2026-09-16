@@ -48,6 +48,21 @@ export async function changePassword(old_password: string, new_password: string)
   tokens.setRefresh(res.data.refresh);
 }
 
+/** Choose a password from a one-time invite or reset link. Signs the user in. */
+export async function setPasswordFromLink(uid: string, token: string, new_password: string): Promise<void> {
+  const res = await api.post<{ access: string; refresh: string }>("/auth/password/set/", {
+    uid,
+    token,
+    new_password,
+  });
+  tokens.setAccess(res.data.access);
+  tokens.setRefresh(res.data.refresh);
+}
+
+export async function forgotPassword(email: string): Promise<void> {
+  await api.post("/auth/password/forgot/", { email });
+}
+
 export async function logout(): Promise<void> {
   const refresh = tokens.getRefresh();
   try {

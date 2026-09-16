@@ -24,7 +24,7 @@
 - [ ] Query performance: annotate/aggregate in DB, add indexes found via `django-debug-toolbar` (dev only) or `EXPLAIN`.
 
 ## 5.3 Notifications & email
-- [ ] Email templates (HTML + text) for: account created (temp password), enrollment, exam scheduled, exam results released, assignment graded, announcement.
+- [ ] Email templates (HTML + text) for: account created (set-password link), enrollment, exam scheduled, exam results released, assignment graded, announcement.
 - [ ] SMTP settings from env; provider chosen with client (SMTP vs SES). Console backend stays in dev.
 - [ ] Decide on async: if email volume warrants → add Celery + Redis (`infra/docker-compose.yml` services) and move `notify(email=True)` + Judge0 polling to tasks. Otherwise keep synchronous. Record decision in `agent.md`.
 - [ ] Notification preferences on profile (email on/off per kind) — optional.
@@ -32,7 +32,9 @@
 ## 5.4 Security & hardening
 - [ ] `prod.py`: `DEBUG=False`, `SECURE_*` settings (HSTS, SSL redirect, secure cookies), `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`.
 - [ ] DRF throttling defaults: anon 30/min, user 300/min; login endpoint 10/min per IP.
-- [ ] Password validators, account lockout after N failed logins (`django-axes` or simple counter) — optional.
+- [x] Password validators, account lockout after N failed logins (simple cache counter: 5 fails lock the email 15 min).
+- [x] Session revocation on password change/reset/deactivation (exact `sv` token claim) and `must_change_password` enforced in the API.
+- [x] One-time set-password links replace temporary passwords (invite, admin reset, forgot password) + frontend `/set-password` and `/forgot-password`.
 - [ ] Upload hardening: content-type sniff, size limits, filenames randomized, `media/` served by Nginx.
 - [ ] Judge0 not exposed publicly; backend-only network.
 - [ ] Dependency audit: `uv pip audit` / `npm audit`.

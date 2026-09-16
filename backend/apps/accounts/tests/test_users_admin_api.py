@@ -75,7 +75,7 @@ def test_list_includes_profile_and_department(admin, cse):
 # ---------- create ----------
 
 
-def test_create_without_password_generates_temp_password(admin, api_client, cse):
+def test_create_without_password_sends_invite_link(admin, api_client, cse):
     res = admin.post(
         URL,
         {
@@ -88,13 +88,11 @@ def test_create_without_password_generates_temp_password(admin, api_client, cse)
         format="json",
     )
     assert res.status_code == 201, res.data
-    temp = res.data["temp_password"]
-    assert temp and "password" not in res.data
+    assert "/set-password?" in res.data["invite_link"] and "password" not in res.data
     user = User.objects.get(email="new.fac@forge.test")
-    assert user.role == "faculty" and user.department == cse and user.must_change_password
+    assert user.role == "faculty" and user.department == cse
+    assert not user.has_usable_password()
     assert user.faculty_profile.employee_id == "EMP-7"
-    login = api_client.post(TOKEN, {"email": user.email, "password": temp}, format="json")
-    assert login.status_code == 200
     assert Notification.objects.filter(recipient=user, kind="account").exists()
     assert mail.outbox and mail.outbox[0].to == [user.email]
     assert AuditLog.objects.filter(action="user.create", target_id=str(user.pk)).exists()
@@ -107,7 +105,7 @@ def test_create_with_password_does_not_force_change(admin):
         format="json",
     )
     assert res.status_code == 201, res.data
-    assert res.data["temp_password"] is None
+    assert res.data["invite_link"] is None
     user = User.objects.get(email="s@forge.test")
     assert user.check_password("Given-Pass#2026") and not user.must_change_password
 
@@ -210,11 +208,9 @@ def test_reset_password(admin, api_client, student_user, password):
     old = api_client.post(TOKEN, {"email": student_user.email, "password": password}, format="json")
     res = admin.post(f"{detail(student_user)}reset-password/")
     assert res.status_code == 200
-    temp = res.data["temp_password"]
+    assert "/set-password?" in res.data["reset_link"]
     student_user.refresh_from_db()
-    assert student_user.must_change_password
-    assert not student_user.check_password(password)
-    assert student_user.check_password(temp)
+    assert not student_user.has_usable_password()
     refresh = api_client.post(REFRESH, {"refresh": old.data["refresh"]}, format="json")
     assert refresh.status_code == 401
     assert Notification.objects.filter(recipient=student_user, kind="account").exists()
@@ -226,12 +222,12 @@ def test_reset_password_admin_only(auth_client, faculty_user, student_user):
     assert auth_client(faculty_user).post(url).status_code == 403
 
 
-def test_change_password_clears_must_change_flag(admin, auth_client, student_user):
-    temp = admin.post(f"{detail(student_user)}reset-password/").data["temp_password"]
-    student_user.refresh_from_db()
+def test_change_password_clears_must_change_flag(auth_client, student_user, password):
+    student_user.must_change_password = True
+    student_user.save()
     res = auth_client(student_user).post(
         "/api/v1/auth/change-password/",
-        {"old_password": temp, "new_password": "Brand-New#Pass1"},
+        {"old_password": password, "new_password": "Brand-New#Pass1"},
         format="json",
     )
     assert res.status_code == 200
@@ -260,11 +256,11 @@ def test_bulk_import_creates_valid_rows_and_reports_errors(admin, cse, student_u
     res = admin.post(f"{URL}bulk-import/", {"file": csv_file(text)}, format="multipart")
     assert res.status_code == 200, res.data
     assert [c["email"] for c in res.data["created"]] == ["a1@forge.test", "f1@forge.test"]
-    assert all(c["temp_password"] for c in res.data["created"])
+    assert all(c["invite_link"] for c in res.data["created"])
     assert [e["row"] for e in res.data["errors"]] == [4, 5, 6, 7, 8]
     a1 = User.objects.get(email="a1@forge.test")
     assert a1.department == cse and a1.student_profile.roll_number == "CSE-100"
-    assert a1.must_change_password
+    assert not a1.has_usable_password()
     assert not User.objects.filter(email="dupe-roll@forge.test").exists()
     log = AuditLog.objects.get(action="user.bulk_import")
     assert log.metadata == {"created": 2, "failed": 5}

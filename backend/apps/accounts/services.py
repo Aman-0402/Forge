@@ -30,7 +30,9 @@ def revoke_tokens(user):
 
 
 def issue_tokens(user):
-    refresh = RefreshToken.for_user(user)
+    from apps.core.authentication import stamp_token
+
+    refresh = stamp_token(RefreshToken.for_user(user), user)
     return {"refresh": str(refresh), "access": str(refresh.access_token)}
 
 

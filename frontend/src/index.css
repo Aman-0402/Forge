@@ -454,3 +454,9 @@ pre.cell { margin: 0; padding: 4px 6px; max-height: 120px; overflow: auto; font-
   .ws-right { position: static; height: auto; }
   .editor-frame { height: 420px; flex: none; }
 }
+
+.break,
+.notice {
+  overflow-wrap: anywhere;
+}
+

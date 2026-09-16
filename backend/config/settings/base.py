@@ -155,6 +155,10 @@ CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
 EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@forge.local")
 
+# Links in emails (invites, password resets) point at the React app.
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
+PASSWORD_RESET_TIMEOUT = env.int("PASSWORD_RESET_TIMEOUT_HOURS", default=72) * 3600
+
 CONTENT_UPLOAD_MAX_MB = {"video": 500, "default": 50}
 ASSIGNMENT_UPLOAD_MAX_MB = 20
 EXAM_GRACE_SECONDS = 10  # network slack after an attempt deadline

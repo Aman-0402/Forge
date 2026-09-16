@@ -10,6 +10,8 @@ import LoginPage from "./pages/LoginPage";
 import MePage from "./pages/MePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import RegisterPage from "./pages/RegisterPage";
+import SetPasswordPage from "./pages/SetPasswordPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ApprovalsPage from "./pages/admin/ApprovalsPage";
 import AuditLogPage from "./pages/admin/AuditLogPage";
 import CategoriesPage from "./pages/admin/CategoriesPage";
@@ -56,6 +58,8 @@ export default function App() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/set-password" element={<SetPasswordPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route
             element={
               <RequireAuth>

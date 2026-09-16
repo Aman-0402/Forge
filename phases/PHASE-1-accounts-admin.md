@@ -68,7 +68,7 @@ Service: `notify(users, title, body, kind, link=None, email=False)` creates rows
 - Faculty may post only `audience=department` for their own department, and may edit/delete only their own posts.
 - Announcements scheduled in the future are not delivered when they go live yet. Needs a scheduler (Phase 5).
 - `must_change_password` is enforced by the frontend only. The API does not block other calls yet.
-- Temporary passwords are returned to the admin in the API response and emailed in plain text. Replace with one-time set-password links in Phase 5 hardening.
+- Temporary passwords are returned to the admin in the API response and emailed in plain text. Replaced with one-time set-password links in Phase 5 hardening.
 - After deactivation or reset, refresh tokens are revoked immediately. Access tokens stop working at once on deactivation; after a reset an old access token stays valid until it expires (max 30 min).
 
 ## Definition of done

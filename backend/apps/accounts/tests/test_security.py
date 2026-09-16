@@ -1,4 +1,5 @@
 import pytest
+from freezegun import freeze_time
 
 API = "/api/v1"
 TOKEN = f"{API}/auth/token/"
@@ -39,6 +40,12 @@ def test_change_password_revokes_old_tokens_and_returns_new_ones(
     bearer(api_client, res.data["access"])
     assert api_client.get(ME).status_code == 200
 
+    api_client.credentials()
+    renewed = api_client.post(REFRESH, {"refresh": res.data["refresh"]}, format="json")
+    assert renewed.status_code == 200
+    bearer(api_client, renewed.data["access"])
+    assert api_client.get(ME).status_code == 200
+
 
 def test_admin_reset_revokes_access_tokens(
     api_client, auth_client, admin_user, student_user, password
@@ -47,6 +54,17 @@ def test_admin_reset_revokes_access_tokens(
     auth_client(admin_user).post(f"{API}/users/{student_user.pk}/reset-password/")
     bearer(api_client, old["access"])
     assert api_client.get(ME).status_code == 401
+
+
+def test_revocation_covers_tokens_issued_in_same_second(
+    api_client, auth_client, admin_user, student_user, password
+):
+    with freeze_time("2026-09-16 10:00:00.100000") as frozen:
+        old = login(api_client, student_user.email, password).data
+        frozen.tick(0.5)
+        auth_client(admin_user).post(f"{API}/users/{student_user.pk}/reset-password/")
+        bearer(api_client, old["access"])
+        assert api_client.get(ME).status_code == 401
 
 
 # ---------- forced password change ----------
