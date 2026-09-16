@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { api, errorMessage } from "../../api/client";
 import { createCategory, listCategories } from "../../api/courses";
 import { useLoad } from "../../hooks/useLoad";
-import { confirmDialog } from "../../utils/notify";
+import { confirmDialog, toast } from "../../utils/notify";
 
 export default function CategoriesPage() {
   const list = useLoad(listCategories, []);
@@ -17,6 +17,7 @@ export default function CategoriesPage() {
       await createCategory({ name, kind });
       setName("");
       list.reload();
+      toast.success("Category added.");
     } catch (err) {
       setError(errorMessage(err));
     }
@@ -27,6 +28,7 @@ export default function CategoriesPage() {
     try {
       await api.delete(`/categories/${id}/`);
       list.reload();
+      toast.success(`"${label}" deleted.`);
     } catch (err) {
       setError(errorMessage(err));
     }

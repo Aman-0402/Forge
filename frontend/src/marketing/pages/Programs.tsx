@@ -83,9 +83,9 @@ export default function Programs() {
           <BookOpen size={16} color="#9ca3af" />
         </div>
         
-        <div className="course-grid">
-          <div className="course-card teal">
-            <div className="course-card-indicator"></div>
+        <div className="dsa-course-grid">
+          <div className="dsa-course-card teal">
+            <div className="dsa-course-card-indicator"></div>
             <div className="course-header">
               <h3 className="course-title">DSA</h3>
               <button className="course-icon-btn"><MoreVertical size={16} /></button>
@@ -94,8 +94,8 @@ export default function Programs() {
             <Link to="/programs" className="course-btn">Start Learning</Link>
           </div>
 
-          <div className="course-card teal">
-            <div className="course-card-indicator"></div>
+          <div className="dsa-course-card teal">
+            <div className="dsa-course-card-indicator"></div>
             <div className="course-header">
               <h3 className="course-title">All Problems</h3>
               <button className="course-icon-btn"><MoreVertical size={16} /></button>
@@ -104,8 +104,8 @@ export default function Programs() {
             <Link to="/programs" className="course-btn">Start Learning</Link>
           </div>
 
-          <div className="course-card teal">
-            <div className="course-card-indicator"></div>
+          <div className="dsa-course-card teal">
+            <div className="dsa-course-card-indicator"></div>
             <div className="course-header">
               <h3 className="course-title">DSA (Concept Revision)</h3>
               <button className="course-icon-btn"><MoreVertical size={16} /></button>
@@ -114,8 +114,8 @@ export default function Programs() {
             <Link to="/programs" className="course-btn">Start Learning</Link>
           </div>
 
-          <div className="course-card teal">
-            <div className="course-card-indicator"></div>
+          <div className="dsa-course-card teal">
+            <div className="dsa-course-card-indicator"></div>
             <div className="course-header">
               <h3 className="course-title">DSA (Quick Revision)</h3>
               <button className="course-icon-btn"><MoreVertical size={16} /></button>
@@ -131,9 +131,9 @@ export default function Programs() {
           <h2 className="section-title-small" style={{ marginBottom: 0 }}>Design</h2>
         </div>
         
-        <div className="course-grid">
-          <div className="course-card magenta">
-            <div className="course-card-indicator"></div>
+        <div className="dsa-course-grid">
+          <div className="dsa-course-card magenta">
+            <div className="dsa-course-card-indicator"></div>
             <div className="course-header">
               <h3 className="course-title">OOPS</h3>
               <button className="course-icon-btn"><MoreVertical size={16} /></button>
@@ -142,8 +142,8 @@ export default function Programs() {
             <Link to="/programs" className="course-btn">Start Learning</Link>
           </div>
 
-          <div className="course-card magenta">
-            <div className="course-card-indicator"></div>
+          <div className="dsa-course-card magenta">
+            <div className="dsa-course-card-indicator"></div>
             <div className="course-header">
               <h3 className="course-title">Low Level Design (LLD)</h3>
               <button className="course-icon-btn"><MoreVertical size={16} /></button>

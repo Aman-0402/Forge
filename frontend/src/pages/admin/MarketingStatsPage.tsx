@@ -8,7 +8,7 @@ import {
 } from "../../api/admin";
 import { errorMessage } from "../../api/client";
 import { useLoad } from "../../hooks/useLoad";
-import { confirmDialog } from "../../utils/notify";
+import { confirmDialog, toast } from "../../utils/notify";
 
 const empty = { order: 0, value: "", suffix: "", description: "" };
 
@@ -31,11 +31,13 @@ export default function MarketingStatsPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
+    const wasEditing = editing !== null;
     try {
       if (editing) await updateMarketingStat(editing, form);
       else await createMarketingStat(form);
       cancelEdit();
       stats.reload();
+      toast.success(wasEditing ? "Stat updated." : "Stat added to the public site.");
     } catch (err) {
       setError(errorMessage(err));
     }
@@ -47,6 +49,7 @@ export default function MarketingStatsPage() {
     try {
       await deleteMarketingStat(id);
       stats.reload();
+      toast.success("Stat deleted.");
     } catch (err) {
       setError(errorMessage(err));
     }

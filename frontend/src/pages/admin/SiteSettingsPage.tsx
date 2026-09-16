@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { getSiteSettings, updateSiteSettings, type SiteSettings } from "../../api/admin";
 import { errorMessage } from "../../api/client";
+import { toast } from "../../utils/notify";
 
 export default function SiteSettingsPage() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -17,13 +17,12 @@ export default function SiteSettingsPage() {
   async function save(patch: Partial<SiteSettings>) {
     if (!settings) return;
     setError("");
-    setMessage("");
     setBusy(true);
     try {
       setSettings(await updateSiteSettings(patch));
-      setMessage("Saved.");
+      toast.success("Saved.");
     } catch (err) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -45,7 +44,6 @@ export default function SiteSettingsPage() {
         These control what visitors and the app can do right now. Changes take effect immediately
         for everyone, no deploy needed.
       </p>
-      {message && <p className="notice">{message}</p>}
       {error && <p className="error">{error}</p>}
 
       <div className="panel">

@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { createDepartment, deleteDepartment, listDepartments } from "../../api/admin";
 import { errorMessage } from "../../api/client";
 import { useLoad } from "../../hooks/useLoad";
-import { confirmDialog } from "../../utils/notify";
+import { confirmDialog, toast } from "../../utils/notify";
 
 export default function DepartmentsPage() {
   const departments = useLoad(listDepartments, []);
@@ -16,6 +16,7 @@ export default function DepartmentsPage() {
       await createDepartment(form);
       setForm({ name: "", code: "", description: "" });
       departments.reload();
+      toast.success("Department added.");
     } catch (err) {
       setError(errorMessage(err));
     }
@@ -27,6 +28,7 @@ export default function DepartmentsPage() {
     try {
       await deleteDepartment(id);
       departments.reload();
+      toast.success(`${code} deleted.`);
     } catch (err) {
       setError(errorMessage(err));
     }

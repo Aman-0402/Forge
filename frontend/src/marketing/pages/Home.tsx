@@ -221,7 +221,7 @@ export default function Home() {
 
       <section className="home-hero" ref={heroRef}>
         <motion.div className="hero-copy" style={{ y: heroY, opacity: heroOpacity }}>
-          <motion.div className="eyebrow" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}><span><Sparkles size={14} /> Your technical career, engineered</span></motion.div>
+          <motion.div className="dsa-eyebrow" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}><span><Sparkles size={14} /> Your technical career, engineered</span></motion.div>
           <TypingHeadline />
           <motion.p initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.16 }}>A mentor-guided learning system for DSA, design, and technical interviews. Build real depth, practise with purpose, and walk into the room ready.</motion.p>
           <motion.div className="hero-actions" initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.24 }}>
