@@ -227,3 +227,22 @@ def test_publish_requires_test_cases(auth_client, faculty_user):
     assert client.post(f"{API}/problems/{problem.pk}/archive/").data["status"] == "archived"
     assert AuditLog.objects.filter(action="problem.publish").exists()
     assert Problem.objects.get(pk=problem.pk).status == "archived"
+
+
+def test_publishing_course_problem_notifies_enrolled_students(auth_client, faculty_user):
+    from apps.notifications.models import Notification
+
+    course = CourseFactory(instructor=faculty_user)
+    enrolled = UserFactory(role="student")
+    EnrollmentFactory(course=course, student=enrolled)
+    UserFactory(role="student")
+    problem = add_cases(ProblemFactory(created_by=faculty_user, course=course, status="draft"))
+    auth_client(faculty_user).post(f"{API}/problems/{problem.pk}/publish/")
+    recipients = list(
+        Notification.objects.filter(kind="coding").values_list("recipient_id", flat=True)
+    )
+    assert recipients == [enrolled.pk]
+    # publishing again (after unpublish) does not spam twice in one go
+    open_problem = add_cases(ProblemFactory(created_by=faculty_user, status="draft"))
+    auth_client(faculty_user).post(f"{API}/problems/{open_problem.pk}/publish/")
+    assert Notification.objects.filter(kind="coding").count() == 1

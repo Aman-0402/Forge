@@ -98,7 +98,38 @@ class ProblemViewSet(AuditedModelMixin, viewsets.ModelViewSet):
         problem = self._managed()
         if not problem.test_cases.exists():
             raise ValidationError({"detail": ["Add at least one test case before publishing."]})
-        return self._set_status(problem, Problem.Status.PUBLISHED, "problem.publish")
+        was_published = problem.status == Problem.Status.PUBLISHED
+        response = self._set_status(problem, Problem.Status.PUBLISHED, "problem.publish")
+        if problem.course_id and not was_published:
+            self._notify_course(problem)
+        return response
+
+    @staticmethod
+    def _notify_course(problem):
+        from django.contrib.auth import get_user_model
+
+        from apps.notifications.models import Notification
+        from apps.notifications.services import notify
+
+        from .permissions import ACTIVE_ENROLLMENT
+
+        students = (
+            get_user_model()
+            .objects.filter(
+                is_active=True,
+                enrollments__course_id=problem.course_id,
+                enrollments__status__in=ACTIVE_ENROLLMENT,
+            )
+            .distinct()
+        )
+        notify(
+            students,
+            f"New coding problem: {problem.title}",
+            f"A {problem.get_difficulty_display().lower()} problem was published in "
+            f"{problem.course.title}.",
+            kind=Notification.Kind.CODING,
+            link=f"/problems/{problem.pk}",
+        )
 
     @extend_schema(request=None, responses=ProblemSerializer)
     @action(detail=True, methods=["post"])
