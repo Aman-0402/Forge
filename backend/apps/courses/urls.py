@@ -1,6 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
+from . import assignment_views as av
 from . import enrollment_views as ev
 from . import progress_views as pv
 from . import structure_views as sv
@@ -29,6 +30,22 @@ def nested(prefix, parent_kwarg, child, viewset, name):
 
 urlpatterns = [
     path("me/enrollments/", ev.MyEnrollmentsView.as_view(), name="my-enrollments"),
+    path(
+        "courses/<int:pk>/assignments/",
+        av.CourseAssignmentsView.as_view(),
+        name="course-assignments",
+    ),
+    path("assignments/<int:pk>/", av.AssignmentDetailView.as_view(), name="assignment-detail"),
+    path(
+        "assignments/<int:pk>/submit/", av.SubmitAssignmentView.as_view(), name="assignment-submit"
+    ),
+    path(
+        "assignments/<int:pk>/submissions/",
+        av.AssignmentSubmissionsView.as_view(),
+        name="assignment-submissions",
+    ),
+    path("submissions/<int:pk>/", av.SubmissionDetailView.as_view(), name="submission-detail"),
+    path("submissions/<int:pk>/grade/", av.GradeSubmissionView.as_view(), name="submission-grade"),
     *nested("courses", "course_pk", "modules", sv.ModuleViewSet, "module"),
     path("modules/<int:pk>/", sv.ModuleViewSet.as_view(DETAIL), name="module-detail"),
     *nested("modules", "module_pk", "chapters", sv.ChapterViewSet, "chapter"),
