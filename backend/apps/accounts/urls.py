@@ -5,6 +5,7 @@ from . import admin_views, views
 
 router = DefaultRouter()
 router.register("departments", admin_views.DepartmentViewSet, basename="department")
+router.register("users", admin_views.UserAdminViewSet, basename="user")
 
 urlpatterns = [
     path("auth/register/", views.RegisterView.as_view(), name="auth-register"),

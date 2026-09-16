@@ -106,6 +106,52 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
+class AdminUserSerializer(serializers.ModelSerializer):
+    """Full user management for admins. Writes go through ``services``."""
+
+    role = serializers.ChoiceField(choices=User.Role.choices)
+    department = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(), allow_null=True, required=False
+    )
+    department_detail = DepartmentBriefSerializer(source="department", read_only=True)
+    profile = ProfileField()
+    password = serializers.CharField(
+        write_only=True, required=False, allow_blank=True, style={"input_type": "password"}
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "role",
+            "phone",
+            "department",
+            "department_detail",
+            "profile",
+            "password",
+            "is_active",
+            "must_change_password",
+            "date_joined",
+            "last_login",
+        ]
+        read_only_fields = ["id", "must_change_password", "date_joined", "last_login"]
+
+    def validate(self, attrs):
+        password = attrs.get("password")
+        if password:
+            candidate = self.instance or User(
+                email=attrs.get("email", ""), first_name=attrs.get("first_name", "")
+            )
+            try:
+                validate_password(password, user=candidate)
+            except Exception as exc:
+                raise serializers.ValidationError({"password": list(exc.messages)}) from exc
+        return attrs
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, style={"input_type": "password"})
 
