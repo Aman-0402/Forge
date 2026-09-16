@@ -83,3 +83,35 @@ class User(AbstractUser):
     @property
     def is_student(self):
         return self.role == self.Role.STUDENT
+
+
+class StudentProfile(TimeStampedModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="student_profile")
+    roll_number = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    batch = models.CharField(max_length=50, blank=True, db_index=True)
+    year = models.PositiveSmallIntegerField(null=True, blank=True)
+    bio = models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        # Unique + nullable: store blanks as NULL so many students can have none.
+        if not self.roll_number:
+            self.roll_number = None
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"StudentProfile({self.user_id})"
+
+
+class FacultyProfile(TimeStampedModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="faculty_profile")
+    employee_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    designation = models.CharField(max_length=100, blank=True)
+    bio = models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.employee_id:
+            self.employee_id = None
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"FacultyProfile({self.user_id})"

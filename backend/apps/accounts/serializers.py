@@ -2,19 +2,73 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import Department
+from . import services
+from .models import Department, FacultyProfile, StudentProfile
 
 User = get_user_model()
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
+    user_count = serializers.IntegerField(read_only=True, default=0)
+
     class Meta:
         model = Department
-        fields = ["id", "name", "code", "description"]
+        fields = ["id", "name", "code", "description", "user_count"]
+
+
+class DepartmentBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["id", "name", "code"]
+
+
+class StudentProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentProfile
+        fields = ["roll_number", "batch", "year", "bio"]
+
+
+class FacultyProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FacultyProfile
+        fields = ["employee_id", "designation", "bio"]
+
+
+PROFILE_SERIALIZERS = {
+    "student": ("student_profile", StudentProfileSerializer),
+    "faculty": ("faculty_profile", FacultyProfileSerializer),
+}
+
+
+class ProfileField(serializers.Field):
+    """Read: the role's profile (or null). Write: a dict applied in ``update``."""
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault("source", "*")
+        kwargs.setdefault("required", False)
+        super().__init__(**kwargs)
+
+    def to_representation(self, user):
+        entry = PROFILE_SERIALIZERS.get(user.role)
+        if not entry:
+            return None
+        attr, serializer_cls = entry
+        profile = getattr(user, attr, None)
+        return serializer_cls(profile).data if profile else None
+
+    def to_internal_value(self, data):
+        if not isinstance(data, dict):
+            raise serializers.ValidationError("Expected an object.")
+        return {"profile": data}
 
 
 class UserSerializer(serializers.ModelSerializer):
-    department = DepartmentSerializer(read_only=True)
+    """Current user (``auth/me/``). Users may edit names, phone, avatar and profile bio."""
+
+    profile_editable_fields = {"bio"}
+
+    department = DepartmentBriefSerializer(read_only=True)
+    profile = ProfileField()
 
     class Meta:
         model = User
@@ -27,7 +81,9 @@ class UserSerializer(serializers.ModelSerializer):
             "phone",
             "avatar",
             "department",
+            "profile",
             "must_change_password",
+            "is_active",
             "date_joined",
             "last_login",
         ]
@@ -37,9 +93,17 @@ class UserSerializer(serializers.ModelSerializer):
             "role",
             "department",
             "must_change_password",
+            "is_active",
             "date_joined",
             "last_login",
         ]
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop("profile", None)
+        instance = super().update(instance, validated_data)
+        if profile_data:
+            services.update_profile(instance, profile_data, self.profile_editable_fields)
+        return instance
 
 
 class RegisterSerializer(serializers.ModelSerializer):

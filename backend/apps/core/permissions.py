@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 ADMIN = "admin"
 FACULTY = "faculty"
@@ -28,6 +28,16 @@ class IsStudent(BasePermission):
 class IsAdminOrFaculty(BasePermission):
     def has_permission(self, request, view):
         return _has_role(request, ADMIN, FACULTY)
+
+
+class IsAdminOrReadOnly(BasePermission):
+    """Any authenticated user may read; only admins may write."""
+
+    def has_permission(self, request, view):
+        user = getattr(request, "user", None)
+        if not (user and user.is_authenticated):
+            return False
+        return request.method in SAFE_METHODS or _has_role(request, ADMIN)
 
 
 class IsOwnerOrAdmin(BasePermission):
