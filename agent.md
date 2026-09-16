@@ -4,7 +4,7 @@
 > Design: `Doc.md`. Rules: `rule.md`. Phase plans: `phases/`.
 
 **Last updated:** 2026-09-16
-**Current phase:** Phase 1 — Accounts & Admin (next up). Phase 0 done.
+**Current phase:** Phase 1 — Accounts & Admin (in progress).
 **Repo:** https://github.com/Aman-0402/Forge.git (branch `main`)
 
 ---
@@ -17,7 +17,7 @@
 | Phase | Name | Status | Notes |
 |---|---|---|---|
 | 0 | Foundation (repo, Django, DB, JWT, base React) | `[x]` | Done 2026-09-16. 38 tests green. |
-| 1 | Accounts & Admin (users, roles, departments, audit, announcements) | `[ ]` | Next up |
+| 1 | Accounts & Admin (users, roles, departments, audit, announcements) | `[~]` | Started 2026-09-16 |
 | 2 | Courses (structure, content, enrollment, assignments, progress) | `[ ]` | |
 | 3 | Exams (question bank, scheduling, attempts, grading, results) | `[ ]` | |
 | 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[ ]` | Needs Docker Desktop |
@@ -33,13 +33,12 @@
 
 ## In progress
 
-- (none)
+- Phase 1: audit log, profiles, departments, admin user management, notifications, announcements, minimal admin frontend.
 
 ## Left / next actions
 
-1. Start Phase 1: follow `phases/PHASE-1-accounts-admin.md`.
-2. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
-3. Minor: oxlint warns `only-export-components` in `frontend/src/auth` (HMR only). Split hooks/helpers into own files when frontend grows.
+1. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
+2. Minor: oxlint warns `only-export-components` in `frontend/src/auth` (HMR only). Split hooks/helpers into own files when frontend grows.
 
 ## Blocked
 
