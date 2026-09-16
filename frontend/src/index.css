@@ -1,0 +1,15 @@
+/* Minimal styles. Real UI arrives in Phase 5.7. */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #f6f7f9; color: #1d1f23; }
+.card { max-width: 380px; margin: 8vh auto; padding: 24px; background: #fff; border: 1px solid #ddd; border-radius: 8px; }
+.card h1 { font-size: 1.3rem; }
+form { display: flex; flex-direction: column; gap: 12px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; }
+input { padding: 8px; border: 1px solid #bbb; border-radius: 4px; font: inherit; }
+button { padding: 8px 12px; border: 0; border-radius: 4px; background: #2d5bd7; color: #fff; font: inherit; cursor: pointer; }
+button:disabled { opacity: 0.6; }
+.error { color: #b00020; margin: 0; }
+.nav { display: flex; gap: 16px; align-items: center; padding: 10px 16px; background: #fff; border-bottom: 1px solid #ddd; flex-wrap: wrap; }
+.spacer { flex: 1; }
+.page { padding: 16px; max-width: 960px; margin: 0 auto; }
+pre { background: #fff; border: 1px solid #ddd; padding: 12px; overflow-x: auto; }
