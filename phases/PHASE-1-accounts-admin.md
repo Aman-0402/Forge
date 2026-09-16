@@ -51,16 +51,25 @@ Service: `notify(users, title, body, kind, link=None, email=False)` creates rows
 | GET/POST/PATCH/DELETE | `announcements/` | admin+faculty write (faculty only course/department scoped), all read | list filtered by audience |
 
 ## Checklist
-- [ ] Models + migrations for `Department`, profiles, `AuditLog`, `Notification`, `Announcement`.
-- [ ] `apps.audit.services.log_action` + DRF mixin `AuditedModelViewSet` that logs create/update/destroy.
-- [ ] `apps.notifications.services.notify` + email helper (`send_mail` with console backend in dev).
-- [ ] Admin user CRUD ViewSet with filters and search; soft deactivate.
-- [ ] Reset-password and bulk CSV import actions (validate rows, return per-row errors).
-- [ ] Profile serializers nested in `me`.
-- [ ] Announcements ViewSet with audience filtering in `get_queryset`.
-- [ ] Tests: role matrix for every endpoint (admin 200, faculty 403, student 403, anon 401); bulk import happy + invalid rows; audit rows created on user create/update; notification read flow; announcement visibility by audience.
-- [ ] Frontend (minimal): `/admin/users` table with create/edit/deactivate forms; `/admin/departments`; `/notifications` bell list; `/announcements` list.
-- [ ] Update `agent.md`; commit + push per feature.
+- [x] Models + migrations for `Department`, profiles, `AuditLog`, `Notification`, `Announcement`. Data migration backfills profiles for existing users.
+- [x] `apps.audit.services.log_action` + DRF mixin (`apps.audit.mixins.AuditedModelMixin`) that logs create/update/destroy.
+- [x] `apps.notifications.services.notify` + email helper (`send_mass_mail`, console backend in dev; failures logged, never break the request).
+- [x] Admin user CRUD ViewSet with filters and search; soft deactivate that also revokes refresh tokens.
+- [x] Reset-password and bulk CSV import actions (validate rows, return per-row errors). Services in `apps/accounts/user_admin.py`.
+- [x] Profile serializers nested in `me` (users may edit `bio` only).
+- [x] Announcements ViewSet with audience filtering in `get_queryset`. `course` audience deferred to Phase 2.
+- [x] Tests: role matrix for every endpoint (admin 200, faculty 403, student 403, anon 401); bulk import happy + invalid rows; audit rows created on user create/update; notification read flow; announcement visibility by audience.
+- [x] Frontend (minimal): `/admin/users` table with create/edit/deactivate/reset/bulk import; `/admin/departments`; `/admin/audit-logs`; `/notifications` with unread badge; `/announcements` list + post; `/change-password` forced when `must_change_password`.
+- [x] Update `agent.md`; commit + push per feature.
+
+## As built (differences from plan)
+- Extra endpoint `GET notifications/unread-count/` for the nav badge.
+- Extra notification kind `account` for credential messages.
+- Faculty may post only `audience=department` for their own department, and may edit/delete only their own posts.
+- Announcements scheduled in the future are not delivered when they go live yet. Needs a scheduler (Phase 5).
+- `must_change_password` is enforced by the frontend only. The API does not block other calls yet.
+- Temporary passwords are returned to the admin in the API response and emailed in plain text. Replace with one-time set-password links in Phase 5 hardening.
+- After deactivation or reset, refresh tokens are revoked immediately. Access tokens stop working at once on deactivation; after a reset an old access token stays valid until it expires (max 30 min).
 
 ## Definition of done
 - Admin can create a faculty and a student, they can log in, `me` returns correct role and profile.

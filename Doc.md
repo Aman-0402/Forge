@@ -176,12 +176,12 @@ QuestionBank ─< Question  Language ─< CodeSubmission
 | Area | Endpoints (summary) |
 |---|---|
 | Auth | `POST auth/register/` (student self-signup) · `POST auth/token/` · `POST auth/token/refresh/` · `GET/PATCH auth/me/` · `POST auth/change-password/` |
-| Users (admin) | `GET/POST users/` · `GET/PATCH/DELETE users/{id}/` · `GET/POST departments/` |
+| Users (admin) | `GET/POST users/` · `GET/PATCH/DELETE users/{id}/` (DELETE = deactivate) · `POST users/{id}/reset-password/` · `POST users/bulk-import/` · `departments/` (admin write, all read) |
 | Courses | `categories/` · `courses/` · `courses/{id}/modules/` · `modules/{id}/chapters/` · `chapters/{id}/lessons/` · `lessons/{id}/content/` · `courses/{id}/enroll/` · `courses/{id}/enrollments/` · `courses/{id}/progress/` · `lessons/{id}/complete/` |
 | Assignments | `courses/{id}/assignments/` · `assignments/{id}/submissions/` · `submissions/{id}/grade/` |
 | Exams | `question-banks/` · `question-banks/{id}/questions/` · `exams/` · `exams/{id}/questions/` · `exams/{id}/start/` · `attempts/{id}/answer/` · `attempts/{id}/submit/` · `attempts/{id}/integrity-event/` · `attempts/{id}/grade/` · `exams/{id}/results/` · `attempts/{id}/result/` |
 | Coding | `languages/` · `problems/` · `problems/{id}/testcases/` · `problems/{id}/run/` (sample cases only) · `problems/{id}/submit/` · `problems/{id}/submissions/` · `submissions/{id}/` · `problems/{id}/leaderboard/` |
-| Notifications | `notifications/` · `notifications/{id}/read/` · `announcements/` |
+| Notifications | `notifications/` (`?unread=true`) · `notifications/{id}/read/` · `notifications/read-all/` · `notifications/unread-count/` · `announcements/` |
 | Admin reports | `reports/overview/` · `reports/courses/` · `reports/exams/` · `audit-logs/` |
 | Docs | `/api/schema/` · `/api/docs/` (Swagger UI) |
 
