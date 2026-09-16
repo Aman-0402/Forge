@@ -4,7 +4,7 @@
 > Design: `Doc.md`. Rules: `rule.md`. Phase plans: `phases/`.
 
 **Last updated:** 2026-09-16
-**Current phase:** Phase 2 — Courses (next up). Phases 0 and 1 done.
+**Current phase:** Phase 2 — Courses (in progress). Phases 0 and 1 done.
 **Repo:** https://github.com/Aman-0402/Forge.git (branch `main`)
 
 ---
@@ -18,7 +18,7 @@
 |---|---|---|---|
 | 0 | Foundation (repo, Django, DB, JWT, base React) | `[x]` | Done 2026-09-16. 38 tests green. |
 | 1 | Accounts & Admin (users, roles, departments, audit, announcements) | `[x]` | Done 2026-09-16. 111 tests green. |
-| 2 | Courses (structure, content, enrollment, assignments, progress) | `[ ]` | Next up |
+| 2 | Courses (structure, content, enrollment, assignments, progress) | `[~]` | Started 2026-09-16 |
 | 3 | Exams (question bank, scheduling, attempts, grading, results) | `[ ]` | |
 | 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[ ]` | Needs Docker Desktop |
 | 5 | Integration, notifications, reports, deploy, frontend upgrade | `[ ]` | |
@@ -39,19 +39,18 @@
 
 ## In progress
 
-- (none)
+- Phase 2: course catalog + approval, structure + content, enrollment (manual/open/auto), progress, assignments + grading, course announcements, minimal frontend.
 
 ## Left / next actions
 
-1. Start Phase 2: follow `phases/PHASE-2-courses.md`. Add `course` audience to announcements there.
-2. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
-3. Phase 5 hardening items found in Phase 1:
+1. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
+2. Phase 5 hardening items found in Phase 1:
    - Enforce `must_change_password` in the API, not only the frontend.
    - Replace temporary passwords in API responses/emails with one-time set-password links.
    - Scheduler to deliver announcements whose `published_at` is in the future.
    - Invalidate access tokens on password reset (currently valid up to 30 min; refresh tokens are revoked).
-4. Minor: oxlint warns `only-export-components` in `frontend/src/auth` (HMR only). Split hooks/helpers into own files when frontend grows.
-5. Minor: git prints LF→CRLF warnings on every commit. Consider a `.gitattributes` with `* text=auto eol=lf`.
+3. Minor: oxlint warns `only-export-components` in `frontend/src/auth` (HMR only). Split hooks/helpers into own files when frontend grows.
+4. Minor: git prints LF→CRLF warnings on every commit. Consider a `.gitattributes` with `* text=auto eol=lf`.
 
 ## Blocked
 
