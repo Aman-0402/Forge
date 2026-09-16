@@ -4,7 +4,7 @@
 > Design: `Doc.md`. Rules: `rule.md`. Phase plans: `phases/`.
 
 **Last updated:** 2026-09-16
-**Current phase:** Phase 0 — Foundation (not started)
+**Current phase:** Phase 1 — Accounts & Admin (next up). Phase 0 done.
 **Repo:** https://github.com/Aman-0402/Forge.git (branch `main`)
 
 ---
@@ -16,8 +16,8 @@
 
 | Phase | Name | Status | Notes |
 |---|---|---|---|
-| 0 | Foundation (repo, Django, DB, JWT, base React) | `[ ]` | Next up |
-| 1 | Accounts & Admin (users, roles, departments, audit, announcements) | `[ ]` | |
+| 0 | Foundation (repo, Django, DB, JWT, base React) | `[x]` | Done 2026-09-16. 38 tests green. |
+| 1 | Accounts & Admin (users, roles, departments, audit, announcements) | `[ ]` | Next up |
 | 2 | Courses (structure, content, enrollment, assignments, progress) | `[ ]` | |
 | 3 | Exams (question bank, scheduling, attempts, grading, results) | `[ ]` | |
 | 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[ ]` | Needs Docker Desktop |
@@ -28,6 +28,7 @@
 ## Completed
 
 - 2026-09-16 — Read `LMS_Solution_Document.pdf`; wrote `Doc.md`, `rule.md`, `agent.md`, `CLAUDE.md`, `phases/PHASE-0..5`, `.gitignore`. Initial commit + push.
+- 2026-09-16 — **Phase 0 done.** Backend: uv project, split settings, MySQL/MariaDB, custom `User` (email login, `role`), `Department`, JWT auth API (register, token, refresh, logout with blacklist, me, change-password), core permissions/pagination/error envelope, `seed_dev`, Swagger at `/api/docs/`. Frontend: Vite React TS with login, register, profile, role home stubs, route guards, axios token refresh. Verified: pytest 38 passed, ruff clean, OpenAPI schema valid, live smoke test (admin login → me → role=admin, CORS for localhost:5173), `npm run build` ok.
 
 ## In progress
 
@@ -35,8 +36,9 @@
 
 ## Left / next actions
 
-1. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
-2. Start Phase 0: follow `phases/PHASE-0-foundation.md`.
+1. Start Phase 1: follow `phases/PHASE-1-accounts-admin.md`.
+2. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
+3. Minor: oxlint warns `only-export-components` in `frontend/src/auth` (HMR only). Split hooks/helpers into own files when frontend grows.
 
 ## Blocked
 
@@ -62,7 +64,8 @@
 
 ## Deviations from Doc.md / phase files
 
-- (none)
+- Frontend scaffold is React 19 + react-router 7 + Vite 8 + TypeScript 6 (current Vite template), not React 18 as first written in `Doc.md`. Doc updated.
+- Database is MySQL (MariaDB 12.3 locally) instead of PostgreSQL. Local dev uses `root` with empty password; never use outside dev.
 
 ## Environment notes
 
@@ -76,3 +79,4 @@
 | Date | Summary | Commits |
 |---|---|---|
 | 2026-09-16 | Project bootstrap: docs, rules, phases | `docs: bootstrap project docs and phase plans` |
+| 2026-09-16 | Phase 0 foundation: backend auth + minimal frontend; switched DB to MySQL | `chore: scaffold django backend with uv`, `feat(accounts): custom user model, jwt auth endpoints, core utilities`, `chore(core): switch database to mysql (mariadb)`, `docs: record mysql decision and phase 0 backend progress`, `chore(frontend): vite react scaffold with jwt auth`, `docs: complete phase 0` |

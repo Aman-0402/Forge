@@ -36,16 +36,16 @@
 - [x] `ruff` config in `pyproject.toml` (line length 100, select E,F,I,B,UP).
 
 ### 0.3 Frontend (minimal)
-- [ ] `npm create vite@latest frontend -- --template react-ts`; `npm i react-router-dom axios`.
-- [ ] `src/api/client.ts`: axios instance, base URL from `VITE_API_URL`, request interceptor adds Bearer, response interceptor refreshes on 401 once.
-- [ ] `src/auth/`: `AuthContext` (user, login, logout, loading), `RequireAuth` route guard, `RequireRole`.
-- [ ] Pages: `/login`, `/register`, `/me` (shows user JSON + role), role-based landing stubs `/admin`, `/faculty`, `/student`.
-- [ ] `.env.example` with `VITE_API_URL=http://localhost:8000/api/v1`.
+- [x] `npm create vite@latest frontend -- --template react-ts`; `npm i react-router-dom axios`.
+- [x] `src/api/client.ts`: axios instance, base URL from `VITE_API_URL`, request interceptor adds Bearer, response interceptor refreshes on 401 once.
+- [x] `src/auth/`: `AuthContext` (user, login, logout, loading), `RequireAuth` route guard, `RequireRole`.
+- [x] Pages: `/login`, `/register`, `/me` (shows user JSON + role), role-based landing stubs `/admin`, `/faculty`, `/student`.
+- [x] `.env.example` with `VITE_API_URL=http://localhost:8000/api/v1`.
 
 ### 0.4 Docs and commit
-- [ ] `backend/README.md` with setup commands.
-- [ ] Update `agent.md` (Phase 0 done, decisions, deviations).
-- [ ] Commits (examples): `chore: scaffold django backend with uv`, `feat(accounts): custom user model with roles`, `feat(accounts): jwt auth endpoints`, `test(accounts): auth flows`, `chore(frontend): vite react scaffold with auth`, `docs: update agent.md after phase 0`. Push after each.
+- [x] `backend/README.md` with setup commands.
+- [x] Update `agent.md` (Phase 0 done, decisions, deviations).
+- [x] Commits (examples): `chore: scaffold django backend with uv`, `feat(accounts): custom user model with roles`, `feat(accounts): jwt auth endpoints`, `test(accounts): auth flows`, `chore(frontend): vite react scaffold with auth`, `docs: update agent.md after phase 0`. Push after each.
 
 ## Definition of done
 - `uv run pytest` green.

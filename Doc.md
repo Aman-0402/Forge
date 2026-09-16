@@ -93,7 +93,7 @@ A custom web-based Learning Management System for institutes and universities. O
 | Code judge | **Judge0 CE, self-hosted via Docker Compose** | Matches doc ("Judge0-style"). Sandboxed, 60+ languages. Docker Desktop must be installed (needs WSL2 on Windows Home). |
 | Cache / queue | **Deferred.** Django locmem cache now. Redis + Celery added only when a real need appears (bulk email, heavy grading, leaderboard). | YAGNI. Judge0 ships its own Redis/Postgres inside its compose. |
 | File storage | Local `media/` in dev. `django-storages` + S3-compatible in prod. | Simple now; swap via settings. |
-| Frontend | **React 18 + TypeScript + Vite**, `react-router-dom`, `axios`. Minimal UI at first. | Doc says React. Basic UI to exercise the backend; visual upgrade later. |
+| Frontend | **React 19 + TypeScript + Vite**, `react-router-dom`, `axios`. Minimal UI at first. | Doc says React. Basic UI to exercise the backend; visual upgrade later. |
 | Email | Django email backend → console in dev, SMTP/SES in prod | Doc option. |
 | Repo | **Monorepo**: `backend/`, `frontend/`, docs at root | Solo dev; one history. |
 | Tests | `pytest` + `pytest-django` + `factory_boy` | TDD per app. |

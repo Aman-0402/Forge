@@ -10,7 +10,7 @@ This file overrides the parent-directory `CLAUDE.md` (which belongs to a differe
 
 ## Stack
 - Backend: Python 3.10+, Django 5, Django REST Framework, SimpleJWT, MySQL (local server is MariaDB 12.3, db `forge_db`), managed with `uv` (`backend/`).
-- Frontend: React 18 + TypeScript + Vite, react-router-dom, axios (`frontend/`). Minimal UI until Phase 5.
+- Frontend: React 19 + TypeScript + Vite, react-router-dom, axios (`frontend/`). Minimal UI until Phase 5.
 - Code judge: Judge0 CE via Docker Compose (`infra/judge0/`).
 - Shell: PowerShell on Windows 11.
 
