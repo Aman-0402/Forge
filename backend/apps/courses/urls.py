@@ -1,12 +1,14 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
+from . import enrollment_views as ev
 from . import structure_views as sv
 from . import views
 
 router = DefaultRouter()
 router.register("categories", views.CategoryViewSet, basename="category")
 router.register("courses", views.CourseViewSet, basename="course")
+router.register("enrollments", ev.EnrollmentViewSet, basename="enrollment")
 
 LIST = {"get": "list", "post": "create"}
 DETAIL = {"get": "retrieve", "put": "update", "patch": "partial_update", "delete": "destroy"}
@@ -25,6 +27,7 @@ def nested(prefix, parent_kwarg, child, viewset, name):
 
 
 urlpatterns = [
+    path("me/enrollments/", ev.MyEnrollmentsView.as_view(), name="my-enrollments"),
     *nested("courses", "course_pk", "modules", sv.ModuleViewSet, "module"),
     path("modules/<int:pk>/", sv.ModuleViewSet.as_view(DETAIL), name="module-detail"),
     *nested("modules", "module_pk", "chapters", sv.ChapterViewSet, "chapter"),

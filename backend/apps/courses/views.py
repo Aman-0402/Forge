@@ -1,14 +1,21 @@
 from django.db.models import Count, Q
-from drf_spectacular.utils import extend_schema
+from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.audit.mixins import AuditedModelMixin
 from apps.core.permissions import IsAdmin, IsAdminOrReadOnly
 
-from . import services
+from . import enrollment, services
+from .enrollment_serializers import (
+    BulkEnrollResultSerializer,
+    BulkEnrollSerializer,
+    EnrollmentSerializer,
+)
 from .models import Category, Course, Enrollment
 from .permissions import (
     ACTIVE_ENROLLMENT,
@@ -84,8 +91,14 @@ class CourseViewSet(AuditedModelMixin, viewsets.ModelViewSet):
 
     # --- lifecycle actions ---
 
+    def _course(self):
+        """Course for detail actions, ignoring list filters such as ?status= or ?search=."""
+        course = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        self.check_object_permissions(self.request, course)
+        return course
+
     def _manager_course(self):
-        course = self.get_object()
+        course = self._course()
         if not can_manage_course(self.request.user, course):
             raise PermissionDenied("Only the course instructors or an admin can do this.")
         return course
@@ -105,7 +118,7 @@ class CourseViewSet(AuditedModelMixin, viewsets.ModelViewSet):
     @extend_schema(request=None, responses=CourseSerializer)
     @action(detail=True, methods=["post"], permission_classes=[IsAdmin])
     def approve(self, request, pk=None):
-        course = services.approve(actor=request.user, course=self.get_object(), request=request)
+        course = services.approve(actor=request.user, course=self._course(), request=request)
         return self._respond(course)
 
     @extend_schema(request=RejectSerializer, responses=CourseSerializer)
@@ -115,7 +128,7 @@ class CourseViewSet(AuditedModelMixin, viewsets.ModelViewSet):
         data.is_valid(raise_exception=True)
         course = services.reject(
             actor=request.user,
-            course=self.get_object(),
+            course=self._course(),
             reason=data.validated_data["reason"],
             request=request,
         )
@@ -129,12 +142,71 @@ class CourseViewSet(AuditedModelMixin, viewsets.ModelViewSet):
         )
         return self._respond(course)
 
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        enrollment.sync_auto_enrollments(serializer.instance, actor=self.request.user)
+
+    # --- enrollment ---
+
+    @extend_schema(request=None, responses={200: EnrollmentSerializer, 201: EnrollmentSerializer})
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def enroll(self, request, pk=None):
+        record, change = enrollment.self_enroll(
+            actor=request.user, course=self._course(), request=request
+        )
+        code = status.HTTP_201_CREATED if change == "created" else status.HTTP_200_OK
+        return Response(
+            EnrollmentSerializer(record, context={"request": request}).data, status=code
+        )
+
+    @extend_schema(request=None, responses=EnrollmentSerializer)
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def drop(self, request, pk=None):
+        record = enrollment.self_drop(actor=request.user, course=self._course(), request=request)
+        return Response(EnrollmentSerializer(record, context={"request": request}).data)
+
+    @extend_schema(
+        methods=["GET"],
+        responses=EnrollmentSerializer(many=True),
+        parameters=[OpenApiParameter("status", str), OpenApiParameter("search", str)],
+    )
+    @extend_schema(
+        methods=["POST"], request=BulkEnrollSerializer, responses=BulkEnrollResultSerializer
+    )
+    @action(detail=True, methods=["get", "post"], url_path="enrollments")
+    def enrollments(self, request, pk=None):
+        course = self._manager_course()
+        if request.method == "POST":
+            data = BulkEnrollSerializer(data=request.data)
+            data.is_valid(raise_exception=True)
+            result = enrollment.bulk_enroll(
+                actor=request.user, course=course, request=request, **data.validated_data
+            )
+            return Response(result)
+
+        qs = Enrollment.objects.filter(course=course).select_related(
+            "course__instructor", "student__student_profile"
+        )
+        if request.query_params.get("status"):
+            qs = qs.filter(status=request.query_params["status"])
+        term = request.query_params.get("search", "").strip()
+        if term:
+            qs = qs.filter(
+                Q(student__email__icontains=term)
+                | Q(student__first_name__icontains=term)
+                | Q(student__last_name__icontains=term)
+                | Q(student__student_profile__roll_number__icontains=term)
+            )
+        page = self.paginate_queryset(qs.order_by("student__email"))
+        serializer = EnrollmentSerializer(page, many=True, context={"request": request})
+        return self.get_paginated_response(serializer.data)
+
     @extend_schema(responses={200: dict})
     @action(detail=True, methods=["get"])
     def tree(self, request, pk=None):
         from .tree import build_tree
 
-        return Response(build_tree(self.get_object(), request))
+        return Response(build_tree(self._course(), request))
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
