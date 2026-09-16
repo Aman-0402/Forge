@@ -8,7 +8,9 @@ from apps.coding.models import Language
 
 PROGRAMS = {
     "python": "print(sum(map(int, input().split())))",
-    "c": '#include <stdio.h>\nint main(){int a,b;scanf("%d %d",&a,&b);printf("%d\\n",a+b);return 0;}',
+    "c": (
+        '#include <stdio.h>\nint main(){int a,b;scanf("%d %d",&a,&b);printf("%d\\n",a+b);return 0;}'
+    ),
     "cpp": "#include <iostream>\nint main(){int a,b;std::cin>>a>>b;std::cout<<a+b<<std::endl;}",
     "java": (
         "import java.util.*;\npublic class Main{public static void main(String[] x){"
