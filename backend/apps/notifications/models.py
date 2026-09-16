@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class Notification(models.Model):
@@ -30,3 +31,40 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.recipient_id}: {self.title}"
+
+
+class Announcement(models.Model):
+    class Audience(models.TextChoices):
+        ALL = "all", "Everyone"
+        FACULTY = "faculty", "Faculty"
+        STUDENTS = "students", "Students"
+        DEPARTMENT = "department", "Department"
+
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="announcements",
+    )
+    title = models.CharField(max_length=200)
+    body = models.TextField()
+    audience = models.CharField(
+        max_length=20, choices=Audience.choices, default=Audience.ALL, db_index=True
+    )
+    department = models.ForeignKey(
+        "accounts.Department",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="announcements",
+    )
+    published_at = models.DateTimeField(default=timezone.now, db_index=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-published_at", "-id"]
+
+    def __str__(self):
+        return self.title

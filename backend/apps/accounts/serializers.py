@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from . import services
@@ -40,6 +41,15 @@ PROFILE_SERIALIZERS = {
 }
 
 
+@extend_schema_field(
+    {
+        "type": "object",
+        "nullable": True,
+        "description": "Student: roll_number, batch, year, bio. Faculty: employee_id, "
+        "designation, bio. Admin: null.",
+        "additionalProperties": True,
+    }
+)
 class ProfileField(serializers.Field):
     """Read: the role's profile (or null). Write: a dict applied in ``update``."""
 

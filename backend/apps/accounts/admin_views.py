@@ -28,6 +28,15 @@ class DepartmentViewSet(AuditedModelMixin, viewsets.ModelViewSet):
         return Department.objects.annotate(user_count=Count("users")).order_by("code")
 
 
+class AdminUserCreatedSerializer(AdminUserSerializer):
+    temp_password = serializers.CharField(
+        allow_null=True, read_only=True, help_text="Set when no password was supplied."
+    )
+
+    class Meta(AdminUserSerializer.Meta):
+        fields = [*AdminUserSerializer.Meta.fields, "temp_password"]
+
+
 TempPasswordResponse = inline_serializer(
     "TempPassword", {"temp_password": serializers.CharField(allow_null=True)}
 )
@@ -51,17 +60,7 @@ class UserAdminViewSet(viewsets.ModelViewSet):
         "department", "student_profile", "faculty_profile"
     ).order_by("email")
 
-    @extend_schema(
-        responses={
-            201: inline_serializer(
-                "AdminUserCreated",
-                {
-                    "user": AdminUserSerializer(),
-                    "temp_password": serializers.CharField(allow_null=True),
-                },
-            )
-        }
-    )
+    @extend_schema(request=AdminUserSerializer, responses={201: AdminUserCreatedSerializer})
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

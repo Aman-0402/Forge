@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Notification
+from .models import Announcement, Notification
+
+
+@admin.register(Announcement)
+class AnnouncementAdmin(admin.ModelAdmin):
+    list_display = ["published_at", "title", "audience", "department", "author", "expires_at"]
+    list_filter = ["audience", "department"]
+    search_fields = ["title", "body"]
 
 
 @admin.register(Notification)
