@@ -57,20 +57,20 @@
 | GET | `me/results/` | student — performance history |
 
 ## Checklist
-- [ ] Models, migrations, factories, constraints (unique, check `marks_awarded <= marks`).
-- [ ] Question bank CRUD + option validation (objective needs ≥2 options, ≥1 correct; single types exactly 1 correct) + import + tests.
-- [ ] Exam CRUD + question attach (manual + random pick) + status transitions + edit lock + tests.
-- [ ] Start attempt: eligibility matrix tests (outside window, not enrolled, max attempts, draft exam), randomization persisted, no answer leakage in payload (assert `is_correct` absent).
-- [ ] Answer upsert + deadline enforcement + validation + tests (time frozen with `freezegun` — add to dev deps).
-- [ ] Submit + objective grading + tests for every question type incl. negative marks.
-- [ ] Lazy auto-submit + `sweep_overdue_attempts` command + tests.
-- [ ] Subjective grading queue + totals recompute + tests.
-- [ ] Result visibility rules + release + export + tests.
-- [ ] Integrity events + tests.
-- [ ] Notifications: exam scheduled (to eligible students), results released. Audit: start, submit, grade, release.
-- [ ] Load sanity: script creating 200 attempts answering concurrently against local server; check no integrity errors and answer latency acceptable.
-- [ ] Frontend (minimal): faculty question bank editor, exam builder, grading queue, results table; student exam list, attempt screen with timer + navigation + auto-submit at 0, result page. Emit `tab_switch`/`fullscreen_exit` events via `visibilitychange`/`fullscreenchange`.
-- [ ] Update `agent.md`; commit + push per feature.
+- [x] Models, migrations, factories, constraints (unique constraints in DB; `marks_awarded <= marks` enforced in the grading service).
+- [x] Question bank CRUD + option validation (objective needs ≥2 options, ≥1 correct; single types exactly 1 correct) + import + tests.
+- [x] Exam CRUD + question attach (manual + random pick) + status transitions + edit lock + tests.
+- [x] Start attempt: eligibility matrix tests (outside window, not enrolled, max attempts, draft exam), randomization persisted, no answer leakage in payload (assert `is_correct` absent).
+- [x] Answer upsert + deadline enforcement + validation + tests (time frozen with `freezegun` — add to dev deps).
+- [x] Submit + objective grading + tests for every question type incl. negative marks.
+- [x] Lazy auto-submit + `sweep_overdue_attempts` command + tests.
+- [x] Subjective grading queue + totals recompute + tests.
+- [x] Result visibility rules + release + export + tests.
+- [x] Integrity events + tests.
+- [x] Notifications: exam scheduled (to eligible students), results released. Audit: start, submit, grade, release.
+- [x] Load sanity: `manage.py exam_load_check` — 200 students x 10 questions, 50 workers against dev runserver: 3980 answer saves + 199 submits, 0 application errors, 0 duplicate attempts, 1 connection refused by runserver backlog. p95 answer save 1.3 s on runserver (single process); production latency to be measured in Phase 5.
+- [x] Frontend (minimal): faculty question bank editor, exam builder, grading queue, results table; student exam list, attempt screen with timer + navigation + auto-submit at 0, result page. Emit `tab_switch`/`fullscreen_exit` events via `visibilitychange`/`fullscreenchange`.
+- [x] Update `agent.md`; commit + push per feature.
 
 ## Definition of done
 - Faculty creates a bank with 5 MCQ + 1 subjective, schedules a 10-minute exam for a course.
@@ -78,3 +78,19 @@
 - Faculty grades subjective; totals correct; releases results; student sees scorecard; unenrolled student gets 403 on start.
 - Attempt left open past deadline is auto-submitted by sweep.
 - Tests green, pushed.
+
+## As built (differences from plan)
+- Exam `status` stores draft / scheduled / closed / archived. "Upcoming", "live" and "ended" are derived from the window (`Exam.phase`), so no cron job flips statuses.
+- Extra endpoints: `exams/{id}/unschedule/`, `exams/{id}/close/`, `exams/{id}/start/` (201 new, 200 resume), `attempts/{id}/review/` (staff), `answers/{id}/grade/`, `me/results/`.
+- Answer path is `PUT attempts/{id}/answers/{exam_question_id}/`; grading is per answer.
+- Question bank import is JSON only (CSV not built).
+- Questions used by an attempted exam can only be deactivated, not edited; questions in any exam cannot be deleted.
+- Exam edits after the first attempt are limited to title, description and `reveal_answers`; the window can still be extended.
+- Objective grading: exact match gets full marks, empty gets 0, anything else gets `-negative_marks`. `mcq_multi` has no partial credit. Attempt totals are floored at 0.
+- Unanswered written questions are auto-graded 0, so only real written answers enter the grading queue.
+- Release is blocked while any attempt awaits grading.
+- `show_result_immediately` only applies once an attempt is fully graded.
+- Integrity events are recorded but never fail an attempt (policy to confirm with client).
+- Answer grace window: `EXAM_GRACE_SECONDS` (10 s).
+- Production needs `manage.py sweep_overdue_attempts` on a one-minute schedule (lazy auto-submit covers attempts that are touched again).
+- Demo data: `manage.py seed_demo_exams` (after `seed_demo_courses`).

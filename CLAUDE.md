@@ -22,6 +22,8 @@ uv sync
 uv run python manage.py migrate
 uv run python manage.py seed_dev             # dev users
 uv run python manage.py seed_demo_courses     # demo courses (after seed_dev)
+uv run python manage.py seed_demo_exams       # demo bank + exams (after seed_demo_courses)
+uv run python manage.py sweep_overdue_attempts # run every minute in production
 uv run python manage.py runserver
 uv run pytest
 uv run ruff check . ; uv run ruff format .

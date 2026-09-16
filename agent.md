@@ -4,7 +4,7 @@
 > Design: `Doc.md`. Rules: `rule.md`. Phase plans: `phases/`.
 
 **Last updated:** 2026-09-16
-**Current phase:** Phase 3 — Exams (in progress). Phases 0, 1 and 2 done.
+**Current phase:** Phase 4 — Coding Portal (next up, needs Docker Desktop). Phases 0–3 done.
 **Repo:** https://github.com/Aman-0402/Forge.git (branch `main`)
 
 ---
@@ -19,8 +19,8 @@
 | 0 | Foundation (repo, Django, DB, JWT, base React) | `[x]` | Done 2026-09-16. 38 tests green. |
 | 1 | Accounts & Admin (users, roles, departments, audit, announcements) | `[x]` | Done 2026-09-16. 111 tests green. |
 | 2 | Courses (structure, content, enrollment, assignments, progress) | `[x]` | Done 2026-09-16. 203 tests green. Certificates deferred to Phase 5. |
-| 3 | Exams (question bank, scheduling, attempts, grading, results) | `[~]` | Started 2026-09-16 |
-| 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[ ]` | Needs Docker Desktop |
+| 3 | Exams (question bank, scheduling, attempts, grading, results) | `[x]` | Done 2026-09-16. 272 tests green. |
+| 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[ ]` | Next up. Needs Docker Desktop |
 | 5 | Integration, notifications, reports, deploy, frontend upgrade | `[ ]` | |
 
 ---
@@ -48,9 +48,19 @@
   - Frontend redesign on user request ("basic UI, good CSS", "content area 1450px"): plain-CSS design system (steel palette, Archivo + IBM Plex, sidebar shell, temper-gradient progress bars), new login/register frame, course catalog, course form, course page (content viewer, assignments, students, manage + structure editor), assignment submit/grading, my learning, role home pages, admin approvals and categories.
   - Verified: pytest 203 passed, ruff clean, OpenAPI schema clean, `npm run build` ok, Playwright screenshots via Edge at 1600px and 400px with no console errors, live API smoke of the phase definition of done (faculty builds course + PDF → submit → admin approve → student enroll → 100% completed → assignment submit → graded → notifications → PDF served). Smoke data deleted afterwards.
 
+- 2026-09-16 — **Phase 3 done.**
+  - `apps.exams` models: question banks, questions + options, exams, exam questions, attempts, answers, integrity events.
+  - Banks: ownership and sharing, option rules per type, JSON import (all-or-nothing), questions locked once attempted, delete protection.
+  - Exam builder: course-owned exams, eligibility (allowed list → course enrollment → everyone), add by id or random pick, marks override, schedule/unschedule/extend/close, edits locked after first attempt, scheduling notifies eligible students.
+  - Attempts: start/resume with persisted question and option order, answers saved until deadline + 10 s grace, submit with objective grading (negative marks, exact-set multi), totals and pass flag, lazy auto-submit, close auto-submits, `sweep_overdue_attempts` command, integrity events. Correct answers never sent before release.
+  - Grading and results: attempt list with integrity counts, full review, written-answer grading and regrade, release (blocked while grading pending) with notifications, student scorecard with optional answer reveal, results stats + CSV export, my results.
+  - `seed_demo_exams` and `exam_load_check` commands.
+  - Frontend: question banks + question editor + JSON import, exams list, exam form, staff exam page (publishing, questions, attempts, results + CSV), student exam page, distraction-free exam screen (server-synced timer, autosave, palette, auto-submit, full screen, integrity events), scorecard, review + grading, my results.
+  - Verified: pytest 272 passed, ruff clean, OpenAPI schema clean, `npm run build` ok, load check (200 students x 10 questions, 50 workers: 3980 answer saves, 199 submits, 0 application errors, 0 duplicate attempts; 1 connection refused by runserver), Playwright screenshots of student and staff exam flows with no console errors. Screenshot and load-test data deleted afterwards.
+
 ## In progress
 
-- Phase 3: question banks, exam builder + scheduling, attempts with server timer, objective auto-grading, subjective grading queue, results, integrity events, frontend.
+- (none)
 
 ## Left / next actions
 
@@ -62,7 +72,12 @@
    - Invalidate access tokens on password reset (currently valid up to 30 min; refresh tokens are revoked).
    - Serve course media and submissions through access checks (currently public `/media/` URLs with random names).
    - Course completion certificates (deferred from Phase 2).
-3. Minor: oxlint `only-export-components` warnings for small helpers exported next to components (HMR only).
+3. Phase 5 items found in Phase 3:
+   - Schedule `sweep_overdue_attempts` every minute.
+   - Measure exam answer-save latency under gunicorn (target p95 < 300 ms); dev runserver gave 1.3 s at 50 concurrent workers.
+   - Confirm integrity-event policy with the client (currently record-only).
+   - Optional: partial credit for multi-answer questions, CSV question import.
+4. Minor: oxlint `only-export-components` warnings for small helpers exported next to components (HMR only).
 
 ## Blocked
 
@@ -92,12 +107,16 @@
 | 2026-09-16 | Faculty may also post announcements to courses they teach | Phase 2 course audience |
 | 2026-09-16 | Frontend gets a real visual design now (plain CSS, no UI library), content max width 1450px | User request during Phase 2 |
 | 2026-09-16 | `.gitattributes` normalizes line endings to LF | Stops CRLF warnings on Windows |
+| 2026-09-16 | Exam live/ended state derived from the time window, not stored | No scheduler needed to flip statuses |
+| 2026-09-16 | Exam timing server-authoritative with 10 s grace; overdue attempts submitted lazily plus sweep command | Correctness without relying on client clocks |
+| 2026-09-16 | Exam screen renders outside the sidebar layout | Distraction-free test taking |
 
 ## Deviations from Doc.md / phase files
 
 - Frontend scaffold is React 19 + react-router 7 + Vite 8 + TypeScript 6 (current Vite template), not React 18 as first written in `Doc.md`. Doc updated.
 - Database is MySQL (MariaDB 12.3 locally) instead of PostgreSQL. Local dev uses `root` with empty password; never use outside dev.
 - Phase 1 as-built notes are listed at the end of `phases/PHASE-1-accounts-admin.md`.
+- Phase 3 as-built notes are listed at the end of `phases/PHASE-3-exams.md` (derived exam phase instead of stored "live", JSON-only import, no partial credit).
 - Phase 2 as-built notes are listed at the end of `phases/PHASE-2-courses.md`. Frontend is no longer "minimal" as `rule.md` §5 first said; user asked for a styled UI.
 
 ## Environment notes
@@ -117,3 +136,4 @@
 | 2026-09-16 | Test accounts, CORS port fix, password eye button | `chore: gitignore local test account file`, `fix(core): allow any localhost port for cors in dev`, `feat(frontend): password visibility toggle and clearer api error` |
 | 2026-09-16 | Phase 1 accounts & admin | `docs: start phase 1`, `feat(audit): audit log model, log_action service, admin api`, `feat(accounts): student/faculty profiles and department api`, `feat(notifications): in-portal notifications with email option`, `feat(accounts): admin user management api`, `feat(notifications): announcements with audience rules`, `feat(frontend): admin users, departments, audit log, notifications, announcements`, `docs: complete phase 1` |
 | 2026-09-16 | Phase 2 courses + frontend design system | `docs: start phase 2`, `feat(courses): course catalog, categories and approval flow`, `chore: normalize line endings with gitattributes`, `feat(courses): modules, chapters, lessons, content and course tree`, `feat(courses): enrollment (self, bulk, automatic rules)`, `feat(courses): lesson completion and course progress`, `feat(courses): assignments, submissions and grading`, `feat(notifications): course audience for announcements`, `chore(courses): seed_demo_courses command for local demo data`, `feat(frontend): course pages and steel design system`, `style(courses): fix line length in demo seed`, `style(frontend): temper gradient fill, full-height sidebar, mobile menu contrast`, `docs: complete phase 2` |
+| 2026-09-16 | Phase 3 exams | `docs: start phase 3`, `docs: mark phase 3 in progress`, `feat(exams): question banks, questions and JSON import`, `feat(exams): exam builder, eligibility and scheduling`, `feat(exams): attempts with server timer and auto-grading`, `feat(exams): grading queue, result release and reports`, `chore(exams): exam_load_check command for concurrency testing`, `chore(exams): seed_demo_exams command for local demo data`, `feat(frontend): question banks, exams, exam taking and results`, `style(exams): fix line length in demo exam seed`, `feat(frontend): explain exam publishing state`, `docs: complete phase 3` |

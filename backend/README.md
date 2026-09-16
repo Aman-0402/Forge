@@ -85,6 +85,34 @@ Errors use one envelope: `{"detail": "...", "code": "...", "errors": {...}}`.
 
 Managers = admin, course instructor or co-instructor.
 
+## Exams (`/api/v1/`)
+| Method | Path | Who | Notes |
+|---|---|---|---|
+| CRUD | `question-banks/` | faculty, admin | Faculty see own + shared banks; only owner/admin edit. |
+| POST | `question-banks/{id}/import/` | owner, admin | `{questions: [...]}`, all-or-nothing. |
+| GET / POST | `question-banks/{id}/questions/` | readers / owner | Filters `type`, `difficulty`, `is_active`, `tag`, `search`. Options inline with `is_correct`. |
+| GET / PATCH / DELETE | `questions/{id}/` | readers / owner | Locked (except `is_active`) once attempted; cannot delete if in an exam. |
+| CRUD | `exams/` | staff; students list eligible exams | Students get `phase` and `my_attempts`. |
+| GET / POST | `exams/{id}/questions/` | managers | POST `{question_ids}` or `{bank, count, difficulty, type}`. |
+| PATCH / DELETE | `exams/{id}/questions/{row}/` | managers | `marks_override`. Locked once attempted. |
+| POST | `exams/{id}/schedule/`, `unschedule/`, `extend/` (`{ends_at}`), `close/`, `release-results/` | managers | Close auto-submits in-progress attempts. |
+| POST | `exams/{id}/start/` | eligible student | 201 new attempt, 200 resume. Never includes answer key. |
+| GET | `attempts/{id}/` | owner | Questions in the student's order with saved answers and `seconds_remaining`. |
+| PUT | `attempts/{id}/answers/{exam_question_id}/` | owner | `{selected_option_ids}` or `{text_answer}`. Rejected after deadline + grace. |
+| POST | `attempts/{id}/submit/`, `attempts/{id}/integrity-events/` | owner | |
+| GET | `exams/{id}/attempts/` | managers | `?status=`; includes `integrity_event_count`. |
+| GET | `attempts/{id}/review/` | managers | Full answer key and integrity events. |
+| PATCH | `answers/{id}/grade/` | managers | Written answers only: `{marks_awarded, grader_feedback}`. |
+| GET | `attempts/{id}/result/` | owner (when released), managers | Answers revealed only if `reveal_answers`. |
+| GET | `exams/{id}/results/`, `exams/{id}/results/export/` | managers | Stats + rows; CSV. |
+| GET | `me/results/` | student | Scores hidden until visible. |
+
+Scheduled jobs for production: `uv run python manage.py sweep_overdue_attempts` every minute.
+
+Demo data: `seed_demo_exams` (after `seed_demo_courses`) creates bank "DSA fundamentals", a live exam "DSA quiz 1" and a closed, graded, released "DSA diagnostic test".
+
+Concurrency check (DEBUG only, against a running server): `uv run python manage.py exam_load_check --students 200`.
+
 Demo data: `uv run python manage.py seed_demo_courses` (after `seed_dev`) creates DSA101, PY110, DB220 (published) and ML300 (draft) with lessons, enrollments, progress and assignments.
 
 Example CSV for bulk import:
