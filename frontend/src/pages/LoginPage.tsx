@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { errorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
+import AuthFrame from "../components/AuthFrame";
 import PasswordInput from "../components/PasswordInput";
 import { homeFor } from "../auth/guards";
 
@@ -30,8 +31,9 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="card">
-      <h1>Forge LMS — Login</h1>
+    <AuthFrame>
+      <div className="eyebrow">Welcome back</div>
+      <h1>Sign in</h1>
       <form onSubmit={onSubmit}>
         <label>
           Email
@@ -49,9 +51,9 @@ export default function LoginPage() {
         {error && <p className="error">{error}</p>}
         <button disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
       </form>
-      <p>
-        No account? <Link to="/register">Register as student</Link>
+      <p className="hint">
+        Student without an account? <Link to="/register">Create one</Link>
       </p>
-    </main>
+    </AuthFrame>
   );
 }

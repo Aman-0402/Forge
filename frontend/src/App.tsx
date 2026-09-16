@@ -1,26 +1,34 @@
+import type { ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { RequireAuth, RequireRole, homeFor } from "./auth/guards";
 import AnnouncementsPage from "./pages/AnnouncementsPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
+import HomePage from "./pages/HomePage";
 import Layout from "./pages/Layout";
 import LoginPage from "./pages/LoginPage";
 import MePage from "./pages/MePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import RegisterPage from "./pages/RegisterPage";
-import RoleHome from "./pages/RoleHome";
+import ApprovalsPage from "./pages/admin/ApprovalsPage";
 import AuditLogPage from "./pages/admin/AuditLogPage";
+import CategoriesPage from "./pages/admin/CategoriesPage";
 import DepartmentsPage from "./pages/admin/DepartmentsPage";
 import UsersPage from "./pages/admin/UsersPage";
+import AssignmentPage from "./pages/courses/AssignmentPage";
+import CourseFormPage from "./pages/courses/CourseFormPage";
+import CoursePage from "./pages/courses/CoursePage";
+import CoursesPage from "./pages/courses/CoursesPage";
+import MyLearningPage from "./pages/courses/MyLearningPage";
 
 function RootRedirect() {
   const { user, loading } = useAuth();
-  if (loading) return <p>Loading…</p>;
+  if (loading) return <p className="hint">Loading…</p>;
   return <Navigate to={user ? homeFor(user.role) : "/login"} replace />;
 }
 
-const adminOnly = (element: React.ReactNode) => (
-  <RequireRole roles={["admin"]}>{element}</RequireRole>
+const only = (roles: ("admin" | "faculty" | "student")[], element: ReactNode) => (
+  <RequireRole roles={roles}>{element}</RequireRole>
 );
 
 export default function App() {
@@ -43,22 +51,26 @@ export default function App() {
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/announcements" element={<AnnouncementsPage />} />
             <Route path="/announcements/:id" element={<AnnouncementsPage />} />
-            <Route path="/admin/users" element={adminOnly(<UsersPage />)} />
-            <Route path="/admin/departments" element={adminOnly(<DepartmentsPage />)} />
-            <Route path="/admin/audit-logs" element={adminOnly(<AuditLogPage />)} />
+
+            <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/courses/new" element={only(["admin", "faculty"], <CourseFormPage />)} />
+            <Route path="/courses/:id" element={<CoursePage />} />
+            <Route path="/courses/:id/edit" element={only(["admin", "faculty"], <CourseFormPage />)} />
+            <Route path="/courses/:courseId/assignments/:id" element={<AssignmentPage />} />
+            <Route path="/assignments/:id" element={<AssignmentPage />} />
+            <Route path="/my-learning" element={only(["student"], <MyLearningPage />)} />
+
+            <Route path="/admin/users" element={only(["admin"], <UsersPage />)} />
+            <Route path="/admin/departments" element={only(["admin"], <DepartmentsPage />)} />
+            <Route path="/admin/categories" element={only(["admin"], <CategoriesPage />)} />
+            <Route path="/admin/approvals" element={only(["admin"], <ApprovalsPage />)} />
+            <Route path="/admin/audit-logs" element={only(["admin"], <AuditLogPage />)} />
+
             {(["admin", "faculty", "student"] as const).map((role) => (
-              <Route
-                key={role}
-                path={`/${role}`}
-                element={
-                  <RequireRole roles={[role]}>
-                    <RoleHome role={role} />
-                  </RequireRole>
-                }
-              />
+              <Route key={role} path={`/${role}`} element={only([role], <HomePage role={role} />)} />
             ))}
           </Route>
-          <Route path="*" element={<p>404 — page not found.</p>} />
+          <Route path="*" element={<p className="page">Page not found.</p>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

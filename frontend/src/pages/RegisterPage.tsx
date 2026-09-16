@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/auth";
 import { errorMessage } from "../api/client";
+import AuthFrame from "../components/AuthFrame";
 import PasswordInput from "../components/PasswordInput";
 
 export default function RegisterPage() {
@@ -28,8 +29,9 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="card">
-      <h1>Student registration</h1>
+    <AuthFrame>
+      <div className="eyebrow">New student</div>
+      <h1>Create your account</h1>
       <form onSubmit={onSubmit}>
         <label>
           First name
@@ -55,9 +57,9 @@ export default function RegisterPage() {
         {error && <p className="error">{error}</p>}
         <button disabled={busy}>{busy ? "Creating…" : "Create account"}</button>
       </form>
-      <p>
-        Have an account? <Link to="/login">Login</Link>
+      <p className="hint">
+        Already registered? <Link to="/login">Sign in</Link>
       </p>
-    </main>
+    </AuthFrame>
   );
 }

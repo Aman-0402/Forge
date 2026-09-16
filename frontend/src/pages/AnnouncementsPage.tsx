@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { listDepartments } from "../api/admin";
 import { errorMessage } from "../api/client";
+import { listCourses } from "../api/courses";
 import {
   createAnnouncement,
   deleteAnnouncement,
@@ -14,9 +15,10 @@ import { formatDate } from "../utils/format";
 
 const AUDIENCE_LABEL: Record<Audience, string> = {
   all: "Everyone",
-  faculty: "Faculty",
-  students: "Students",
-  department: "Department",
+  faculty: "All faculty",
+  students: "All students",
+  department: "A department",
+  course: "A course",
 };
 
 export default function AnnouncementsPage() {
@@ -39,20 +41,30 @@ export default function AnnouncementsPage() {
 
   return (
     <>
-      <h1>Announcements</h1>
+      <div className="page-head">
+        <div>
+          <div className="eyebrow">Updates</div>
+          <h1>Announcements</h1>
+        </div>
+      </div>
       {canPost && <AnnouncementForm onCreated={list.reload} />}
       {(error || list.error) && <p className="error">{error || list.error}</p>}
-      {list.data?.results.length === 0 && <p>No announcements.</p>}
+      {list.data?.results.length === 0 && (
+        <div className="empty">
+          <strong>No announcements</strong>
+          Posts for you, your department and your courses show up here.
+        </div>
+      )}
       <ul className="cards">
         {list.data?.results.map((a) => (
           <li key={a.id} className="card-item">
             <div className="card-head">
               <strong>{a.title}</strong>
               <span className="meta">
-                {AUDIENCE_LABEL[a.audience]}
-                {a.department_code && ` (${a.department_code})`} · {a.author_name ?? "system"} ·{" "}
-                {formatDate(a.published_at)}
-                {a.expires_at && ` · expires ${formatDate(a.expires_at)}`}
+                {a.course_title ?? (a.department_code ? `Department ${a.department_code}` : AUDIENCE_LABEL[a.audience])}
+                {" · "}
+                {a.author_name ?? "System"} · {formatDate(a.published_at)}
+                {a.expires_at && ` · until ${formatDate(a.expires_at)}`}
               </span>
             </div>
             <p className="pre">{a.body}</p>
@@ -73,23 +85,24 @@ function AnnouncementForm({ onCreated }: { onCreated: () => void }) {
   const { user } = useAuth();
   const isFaculty = user?.role === "faculty";
   const departments = useLoad(listDepartments, []);
+  const courses = useLoad(
+    () => listCourses({ page_size: 100 }).then((r) => r.results.filter((c) => c.can_manage)),
+    [],
+  );
+  const audiences: Audience[] = isFaculty
+    ? [...(user?.department ? (["department"] as Audience[]) : []), "course"]
+    : ["all", "students", "faculty", "department", "course"];
+
   const [form, setForm] = useState({
     title: "",
     body: "",
-    audience: (isFaculty ? "department" : "all") as Audience,
+    audience: audiences[0],
     department: isFaculty && user?.department ? String(user.department.id) : "",
+    course: "",
     expires_at: "",
   });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-
-  if (isFaculty && !user?.department) {
-    return (
-      <p className="notice">
-        You need a department to post announcements. Ask an admin to assign one.
-      </p>
-    );
-  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -101,6 +114,7 @@ function AnnouncementForm({ onCreated }: { onCreated: () => void }) {
         body: form.body,
         audience: form.audience,
         department: form.audience === "department" ? Number(form.department) : null,
+        course: form.audience === "course" ? Number(form.course) : null,
         expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
       });
       setForm({ ...form, title: "", body: "", expires_at: "" });
@@ -114,26 +128,21 @@ function AnnouncementForm({ onCreated }: { onCreated: () => void }) {
 
   return (
     <form className="panel" onSubmit={onSubmit}>
-      <h2>New announcement</h2>
+      <h2>Post an announcement</h2>
       <div className="grid">
         <label>
           Title
-          <input
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            required
-          />
+          <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
         </label>
         <label>
-          Audience
+          Send to
           <select
             value={form.audience}
-            disabled={isFaculty}
             onChange={(e) => setForm({ ...form, audience: e.target.value as Audience })}
           >
-            {Object.entries(AUDIENCE_LABEL).map(([value, label]) => (
+            {audiences.map((value) => (
               <option key={value} value={value}>
-                {label}
+                {AUDIENCE_LABEL[value]}
               </option>
             ))}
           </select>
@@ -156,8 +165,22 @@ function AnnouncementForm({ onCreated }: { onCreated: () => void }) {
             </select>
           </label>
         )}
+        {form.audience === "course" && (
+          <label>
+            Course
+            <select value={form.course} onChange={(e) => setForm({ ...form, course: e.target.value })} required>
+              <option value="">Choose…</option>
+              {courses.data?.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.code ? `${c.code} — ` : ""}
+                  {c.title}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <label>
-          Expires (optional)
+          Hide after (optional)
           <input
             type="datetime-local"
             value={form.expires_at}
@@ -167,15 +190,12 @@ function AnnouncementForm({ onCreated }: { onCreated: () => void }) {
       </div>
       <label>
         Message
-        <textarea
-          rows={4}
-          value={form.body}
-          onChange={(e) => setForm({ ...form, body: e.target.value })}
-          required
-        />
+        <textarea rows={4} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} required />
       </label>
       {error && <p className="error">{error}</p>}
-      <button disabled={busy}>{busy ? "Posting…" : "Post announcement"}</button>
+      <div className="row">
+        <button disabled={busy}>{busy ? "Posting…" : "Post announcement"}</button>
+      </div>
     </form>
   );
 }

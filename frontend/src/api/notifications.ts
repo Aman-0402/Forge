@@ -12,7 +12,7 @@ export type Notification = {
   created_at: string;
 };
 
-export type Audience = "all" | "faculty" | "students" | "department";
+export type Audience = "all" | "faculty" | "students" | "department" | "course";
 
 export type Announcement = {
   id: number;
@@ -21,6 +21,8 @@ export type Announcement = {
   audience: Audience;
   department: number | null;
   department_code: string | null;
+  course: number | null;
+  course_title: string | null;
   author: number | null;
   author_name: string | null;
   published_at: string;
@@ -34,6 +36,7 @@ export type AnnouncementInput = {
   body: string;
   audience: Audience;
   department?: number | null;
+  course?: number | null;
   published_at?: string;
   expires_at?: string | null;
 };
@@ -60,3 +63,4 @@ export const createAnnouncement = async (body: AnnouncementInput) =>
 export const deleteAnnouncement = async (id: number) => {
   await api.delete(`/announcements/${id}/`);
 };
+
