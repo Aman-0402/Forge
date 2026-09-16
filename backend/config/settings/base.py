@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "apps.audit",
     "apps.notifications",
     "apps.courses",
+    "apps.exams",
 ]
 
 MIDDLEWARE = [
@@ -131,6 +132,8 @@ SPECTACULAR_SETTINGS = {
     "ENUM_NAME_OVERRIDES": {
         "CourseStatusEnum": "apps.courses.models.Course.Status",
         "EnrollmentStatusEnum": "apps.courses.models.Enrollment.Status",
+        "ExamStatusEnum": "apps.exams.models.Exam.Status",
+        "AttemptStatusEnum": "apps.exams.models.Attempt.Status",
     },
 }
 
@@ -141,5 +144,6 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@forge.local")
 
 CONTENT_UPLOAD_MAX_MB = {"video": 500, "default": 50}
 ASSIGNMENT_UPLOAD_MAX_MB = 20
+EXAM_GRACE_SECONDS = 10  # network slack after an attempt deadline
 
 JUDGE0_URL = env("JUDGE0_URL", default="http://localhost:2358")

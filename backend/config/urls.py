@@ -9,6 +9,7 @@ api_v1 = [
     path("", include("apps.audit.urls")),
     path("", include("apps.notifications.urls")),
     path("", include("apps.courses.urls")),
+    path("", include("apps.exams.urls")),
 ]
 
 urlpatterns = [
