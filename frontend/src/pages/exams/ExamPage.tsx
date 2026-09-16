@@ -193,6 +193,15 @@ function StaffExam({ exam: e, reload }: { exam: Exam; reload: () => void }) {
             Edit settings
           </Link>
         </div>
+        <p className="hint">
+          {e.status === "draft" && "Draft exams are invisible to students. Add questions, then schedule."}
+          {e.phase === "upcoming" && `Scheduled. Students can start from ${formatDate(e.starts_at)}.`}
+          {e.phase === "live" && "Open now. Students can start until the window closes."}
+          {(e.phase === "ended" || e.status === "closed") &&
+            (e.results_released_at
+              ? `Closed. Results were released ${formatDate(e.results_released_at)}.`
+              : "Closed. Grade any written answers, then release results.")}
+        </p>
         <div className="row">
           {e.status === "draft" && (
             <button disabled={busy} onClick={() => run(() => examAction(e.id, "schedule"))}>
