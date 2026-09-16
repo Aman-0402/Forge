@@ -4,7 +4,7 @@
 > Design: `Doc.md`. Rules: `rule.md`. Phase plans: `phases/`.
 
 **Last updated:** 2026-09-16
-**Current phase:** Phase 3 — Exams (next up). Phases 0, 1 and 2 done.
+**Current phase:** Phase 3 — Exams (in progress). Phases 0, 1 and 2 done.
 **Repo:** https://github.com/Aman-0402/Forge.git (branch `main`)
 
 ---
@@ -19,7 +19,7 @@
 | 0 | Foundation (repo, Django, DB, JWT, base React) | `[x]` | Done 2026-09-16. 38 tests green. |
 | 1 | Accounts & Admin (users, roles, departments, audit, announcements) | `[x]` | Done 2026-09-16. 111 tests green. |
 | 2 | Courses (structure, content, enrollment, assignments, progress) | `[x]` | Done 2026-09-16. 203 tests green. Certificates deferred to Phase 5. |
-| 3 | Exams (question bank, scheduling, attempts, grading, results) | `[ ]` | Next up |
+| 3 | Exams (question bank, scheduling, attempts, grading, results) | `[~]` | Started 2026-09-16 |
 | 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[ ]` | Needs Docker Desktop |
 | 5 | Integration, notifications, reports, deploy, frontend upgrade | `[ ]` | |
 
@@ -62,7 +62,6 @@
    - Serve course media and submissions through access checks (currently public `/media/` URLs with random names).
    - Course completion certificates (deferred from Phase 2).
 3. Minor: oxlint `only-export-components` warnings for small helpers exported next to components (HMR only).
-4. Start Phase 3: follow `phases/PHASE-3-exams.md`.
 
 ## Blocked
 
