@@ -18,9 +18,11 @@ User = get_user_model()
 
 QUESTIONS = [
     ("mcq_single", "Which data structure follows last-in, first-out order?",
-     ["Queue", "Stack", "Linked list", "Heap"], [1], "easy", 1, "A stack removes the most recently added item."),
+     ["Queue", "Stack", "Linked list", "Heap"], [1], "easy", 1,
+     "A stack removes the most recently added item."),
     ("mcq_single", "What is the worst-case time complexity of binary search?",
-     ["O(1)", "O(log n)", "O(n)", "O(n log n)"], [1], "easy", 1, "Each step halves the search range."),
+     ["O(1)", "O(log n)", "O(n)", "O(n log n)"], [1], "easy", 1,
+     "Each step halves the search range."),
     ("mcq_multi", "Which sorting algorithms have O(n log n) average time?",
      ["Merge sort", "Bubble sort", "Quick sort", "Insertion sort"], [0, 2], "medium", 2, ""),
     ("true_false", "A binary search tree always has height O(log n).",
@@ -139,7 +141,7 @@ class Command(BaseCommand):
                     attempt_services.save_answer(
                         attempt=attempt,
                         exam_question_id=eq.pk,
-                        text_answer="Hash tables give O(1) average lookups; BSTs keep keys ordered.",
+                        text_answer="Hash tables give O(1) average lookups; BSTs keep order.",
                     )
                     continue
                 options = list(q.options.all())
