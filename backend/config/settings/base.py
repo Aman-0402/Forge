@@ -161,6 +161,11 @@ PASSWORD_RESET_TIMEOUT = env.int("PASSWORD_RESET_TIMEOUT_HOURS", default=72) * 3
 
 CONTENT_UPLOAD_MAX_MB = {"video": 500, "default": 50}
 ASSIGNMENT_UPLOAD_MAX_MB = 20
+
+# Private uploads are downloaded through signed links (apps/core/files.py).
+FILE_LINK_MAX_AGE_SECONDS = env.int("FILE_LINK_MAX_AGE_SECONDS", default=6 * 3600)
+# Production: Nginx internal location that maps to MEDIA_ROOT, e.g. "/protected-media/".
+PROTECTED_MEDIA_NGINX_PREFIX = env("PROTECTED_MEDIA_NGINX_PREFIX", default="")
 EXAM_GRACE_SECONDS = 10  # network slack after an attempt deadline
 
 JUDGE0_URL = env("JUDGE0_URL", default="http://127.0.0.1:2358")

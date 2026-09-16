@@ -35,7 +35,7 @@
 - [x] Password validators, account lockout after N failed logins (simple cache counter: 5 fails lock the email 15 min).
 - [x] Session revocation on password change/reset/deactivation (exact `sv` token claim) and `must_change_password` enforced in the API.
 - [x] One-time set-password links replace temporary passwords (invite, admin reset, forgot password) + frontend `/set-password` and `/forgot-password`.
-- [ ] Upload hardening: content-type sniff, size limits, filenames randomized, `media/` served by Nginx.
+- [~] Upload hardening: size limits and random filenames done earlier. Private uploads (course content, assignment briefs, submissions) now download only through signed, expiring `/api/v1/files/` links; dev `/media/` serves avatars and thumbnails only; prod uses `PROTECTED_MEDIA_NGINX_PREFIX` + X-Accel-Redirect. Content-type sniffing still open.
 - [ ] Judge0 not exposed publicly; backend-only network.
 - [ ] Dependency audit: `uv pip audit` / `npm audit`.
 - [ ] Run `/security-review` on the branch; fix findings.

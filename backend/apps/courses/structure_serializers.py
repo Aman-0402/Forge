@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from apps.core.files import SignedFileField
+
 from .models import Chapter, ContentItem, Lesson, Module
 from .validators import CONTENT_EXTENSIONS, content_max_mb, validate_upload
 
@@ -41,6 +43,8 @@ class LessonSerializer(serializers.ModelSerializer):
 
 
 class ContentItemSerializer(serializers.ModelSerializer):
+    file = SignedFileField(required=False, allow_null=True, max_length=255)
+
     class Meta:
         model = ContentItem
         fields = [

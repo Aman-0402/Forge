@@ -1,6 +1,8 @@
 from django.conf import settings
 from rest_framework import serializers
 
+from apps.core.files import SignedFileField
+
 from .enrollment_serializers import StudentBriefSerializer
 from .models import Assignment, AssignmentSubmission
 from .validators import ASSIGNMENT_EXTENSIONS, validate_upload
@@ -16,6 +18,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     submission_count = serializers.IntegerField(read_only=True, default=None)
     graded_count = serializers.IntegerField(read_only=True, default=None)
     my_submission = serializers.SerializerMethodField()
+    attachment = SignedFileField(required=False, allow_null=True, max_length=255)
 
     class Meta:
         model = Assignment
@@ -59,6 +62,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
     max_marks = serializers.DecimalField(
         source="assignment.max_marks", max_digits=6, decimal_places=2, read_only=True
     )
+    file = SignedFileField(read_only=True)
 
     class Meta:
         model = AssignmentSubmission
