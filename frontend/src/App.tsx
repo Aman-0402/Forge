@@ -20,6 +20,14 @@ import CourseFormPage from "./pages/courses/CourseFormPage";
 import CoursePage from "./pages/courses/CoursePage";
 import CoursesPage from "./pages/courses/CoursesPage";
 import MyLearningPage from "./pages/courses/MyLearningPage";
+import AttemptResultPage from "./pages/exams/AttemptResultPage";
+import BankPage from "./pages/exams/BankPage";
+import BanksPage from "./pages/exams/BanksPage";
+import ExamFormPage from "./pages/exams/ExamFormPage";
+import ExamPage from "./pages/exams/ExamPage";
+import ExamsPage from "./pages/exams/ExamsPage";
+import MyResultsPage from "./pages/exams/MyResultsPage";
+import TakeExamPage from "./pages/exams/TakeExamPage";
 
 function RootRedirect() {
   const { user, loading } = useAuth();
@@ -60,6 +68,16 @@ export default function App() {
             <Route path="/assignments/:id" element={<AssignmentPage />} />
             <Route path="/my-learning" element={only(["student"], <MyLearningPage />)} />
 
+            <Route path="/question-banks" element={only(["admin", "faculty"], <BanksPage />)} />
+            <Route path="/question-banks/:id" element={only(["admin", "faculty"], <BankPage />)} />
+            <Route path="/exams" element={<ExamsPage />} />
+            <Route path="/exams/new" element={only(["admin", "faculty"], <ExamFormPage />)} />
+            <Route path="/exams/:id" element={<ExamPage />} />
+            <Route path="/exams/:id/edit" element={only(["admin", "faculty"], <ExamFormPage />)} />
+            <Route path="/attempts/:id/result" element={<AttemptResultPage />} />
+            <Route path="/attempts/:id/review" element={only(["admin", "faculty"], <AttemptResultPage review />)} />
+            <Route path="/my-results" element={only(["student"], <MyResultsPage />)} />
+
             <Route path="/admin/users" element={only(["admin"], <UsersPage />)} />
             <Route path="/admin/departments" element={only(["admin"], <DepartmentsPage />)} />
             <Route path="/admin/categories" element={only(["admin"], <CategoriesPage />)} />
@@ -70,6 +88,14 @@ export default function App() {
               <Route key={role} path={`/${role}`} element={only([role], <HomePage role={role} />)} />
             ))}
           </Route>
+          <Route
+            path="/attempts/:id/take"
+            element={
+              <RequireAuth>
+                {only(["student"], <TakeExamPage />)}
+              </RequireAuth>
+            }
+          />
           <Route path="*" element={<p className="page">Page not found.</p>} />
         </Routes>
       </BrowserRouter>

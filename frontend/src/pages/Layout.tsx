@@ -47,6 +47,9 @@ export default function Layout() {
         </NavLink>
         <NavLink to="/courses">{user.role === "student" ? "Course catalog" : "Courses"}</NavLink>
         {user.role === "student" && <NavLink to="/my-learning">My learning</NavLink>}
+        <NavLink to="/exams">Exams</NavLink>
+        {user.role === "student" && <NavLink to="/my-results">My results</NavLink>}
+        {user.role !== "student" && <NavLink to="/question-banks">Question banks</NavLink>}
         <NavLink to="/announcements">Announcements</NavLink>
         <NavLink to="/notifications">
           Notifications
