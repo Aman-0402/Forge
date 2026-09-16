@@ -10,11 +10,11 @@
 
 ## Infra: Judge0 CE
 
-- [ ] Install Docker Desktop (WSL2 backend). Verify `docker run hello-world`.
-- [ ] `infra/judge0/`: download official Judge0 CE release bundle (`docker-compose.yml` + `judge0.conf`). Set a random `REDIS_PASSWORD`, `POSTGRES_PASSWORD`. Expose API on `localhost:2358` only.
-- [ ] `docker compose up -d` in `infra/judge0/`; verify `GET http://localhost:2358/languages` and a sample Python submission.
-- [ ] Add `JUDGE0_URL`, `JUDGE0_AUTH_TOKEN` (optional), `JUDGE0_TIMEOUT_SECONDS` to backend `.env.example`.
-- [ ] `infra/judge0/README.md` with start/stop and Windows notes (WSL2, cgroup v1 requirement: Judge0 needs `systemd.unified_cgroup_hierarchy=0` in `%UserProfile%\.wslconfig` kernel command line; document exact steps).
+- [!] Install Docker Desktop (WSL2 backend). Verify `docker run hello-world`. **Blocked: Docker Desktop and WSL2 not installed on the dev machine (needs admin + reboot by the user).**
+- [x] `infra/judge0/`: download official Judge0 CE release bundle (`docker-compose.yml` + `judge0.conf`). Set a random `REDIS_PASSWORD`, `POSTGRES_PASSWORD`. Expose API on `localhost:2358` only.
+- [!] (blocked on Docker) `docker compose up -d` in `infra/judge0/`; verify `GET http://localhost:2358/languages` and a sample Python submission.
+- [x] Add `JUDGE0_URL`, `JUDGE0_AUTH_TOKEN` (optional), `JUDGE0_TIMEOUT_SECONDS` to backend `.env.example`.
+- [x] `infra/judge0/README.md` with start/stop and Windows notes (WSL2, cgroup v1 requirement: Judge0 needs `systemd.unified_cgroup_hierarchy=0` in `%UserProfile%\.wslconfig` kernel command line; document exact steps).
 
 ## Data model (`apps/coding`)
 
@@ -63,20 +63,37 @@
 | GET | `problems/{id}/leaderboard/` · `leaderboard/` | any (optional) |
 
 ## Checklist
-- [ ] Docker Desktop + Judge0 up; README written.
-- [ ] Models, migrations, factories; `Language` seed via `languages/sync/` or fixture with Python/C/C++/Java/JS ids.
-- [ ] Judge0 client with unit tests using `httpx.MockTransport` (no live Judge0 in unit tests); one marked `integration` test hitting real Judge0 (skipped if unreachable).
-- [ ] Problem + test case CRUD, visibility rules, serializer redaction tests (assert hidden fields absent for student).
-- [ ] Run endpoint + throttling + tests.
-- [ ] Submit endpoint: batch create → poll → aggregate → verdict/score; tests with mocked transport covering accepted / wrong answer / TLE / compile error / partial.
-- [ ] Submission history + detail redaction + tests.
-- [ ] Rejudge action + audit.
-- [ ] Optional: leaderboard recompute on accepted submission + endpoint.
-- [ ] Notifications: new problem published in enrolled course. Audit: publish, submit, rejudge.
-- [ ] Frontend (minimal): problem list, problem page with `@monaco-editor/react` (this one dependency is worth adding now), language select, Run (shows sample results) and Submit (shows per-case pass/fail + verdict), submissions history; faculty problem editor with test case table.
-- [ ] Update `agent.md`; commit + push per feature.
+- [~] README, compose file, config template and `setup.ps1` written. Judge0 not started (Docker missing).
+- [x] Models, migrations, factories; `Language` seed via `languages/sync/` or fixture with Python/C/C++/Java/JS ids.
+- [x] Judge0 client with unit tests using `httpx.MockTransport` (no live Judge0 in unit tests); one marked `integration` test hitting real Judge0 (skipped if unreachable).
+- [x] Problem + test case CRUD, visibility rules, serializer redaction tests (assert hidden fields absent for student).
+- [x] Run endpoint + throttling + tests.
+- [x] Submit endpoint: batch create → poll → aggregate → verdict/score; tests with mocked transport covering accepted / wrong answer / TLE / compile error / partial.
+- [x] Submission history + detail redaction + tests.
+- [x] Rejudge action + audit.
+- [x] Optional: leaderboard recompute on accepted submission + endpoint.
+- [x] Notifications: new problem published in enrolled course. Audit: publish, submit, rejudge.
+- [x] Frontend (minimal): problem list, problem page with `@monaco-editor/react` (this one dependency is worth adding now), language select, Run (shows sample results) and Submit (shows per-case pass/fail + verdict), submissions history; faculty problem editor with test case table.
+- [x] Update `agent.md`; commit + push per feature.
 
 ## Definition of done
 - Faculty creates "Sum of two numbers" with 2 sample + 3 hidden cases, publishes.
 - Student runs Python solution → sample results shown; submits → `accepted`, score 100; submits wrong solution → `wrong_answer`, partial score; hidden inputs not in response body.
 - Submission history lists both. Tests green, pushed.
+
+## As built (differences from plan)
+- Languages come from `manage.py seed_languages` (Judge0 CE 1.13.1 ids for Python, C, C++, Java, JavaScript). No `languages/sync/` endpoint.
+- Runs are not stored. Only submissions are stored.
+- The backend compares output itself (trailing whitespace and line endings ignored) instead of sending `expected_output` to Judge0.
+- Judging is synchronous inside the submit request: batch create, then poll every 0.5 s up to `JUDGE0_TIMEOUT_SECONDS` (30). Move to a task queue if latency or volume demands it.
+- When Judge0 is unreachable, submit returns 503 and the submission is kept with status `error` and verdict `internal_error`; rejudge re-runs it later.
+- Leaderboard is computed on request (best score per student, earlier achievement ranks higher), not stored.
+- Extra endpoints: `problems/{id}/unpublish/`, `problems/{id}/testcases/import/`, `code-submissions/{id}/` (named to avoid clashing with assignment `submissions/`), `me/coding/summary/`.
+- `manage.py judge0_check` runs "add two numbers" in every enabled language against the live Judge0.
+- Frontend uses Monaco bundled locally (no CDN), lazy-loaded on coding pages. DOMPurify pinned to 3.4.15 via npm `overrides` to clear advisories in Monaco's dependency.
+
+## Still to verify once Docker is installed
+1. `infra/judge0/setup.ps1`, `docker compose up -d`, copy the token into `backend/.env`.
+2. `uv run python manage.py judge0_check` prints `ok` for all five languages.
+3. `uv run pytest -m judge0` runs the live test instead of skipping it.
+4. Definition of done in the browser: faculty publishes "Sum of two numbers", a student runs and submits a correct and a wrong solution.

@@ -24,6 +24,11 @@ uv run python manage.py seed_dev             # dev users
 uv run python manage.py seed_demo_courses     # demo courses (after seed_dev)
 uv run python manage.py seed_demo_exams       # demo bank + exams (after seed_demo_courses)
 uv run python manage.py sweep_overdue_attempts # run every minute in production
+uv run python manage.py seed_demo_problems    # languages + demo coding problems (after seed_demo_courses)
+uv run python manage.py judge0_check          # live Judge0 smoke test (needs infra/judge0 running)
+
+# judge0 (needs Docker Desktop; see infra/judge0/README.md)
+cd infra\judge0; .\setup.ps1; docker compose up -d
 uv run python manage.py runserver
 uv run pytest
 uv run ruff check . ; uv run ruff format .

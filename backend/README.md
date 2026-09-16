@@ -107,6 +107,24 @@ Managers = admin, course instructor or co-instructor.
 | GET | `exams/{id}/results/`, `exams/{id}/results/export/` | managers | Stats + rows; CSV. |
 | GET | `me/results/` | student | Scores hidden until visible. |
 
+## Coding portal (`/api/v1/`)
+| Method | Path | Who | Notes |
+|---|---|---|---|
+| GET | `languages/` | any | Enabled languages with `editor_mode` and starter template. |
+| CRUD | `problems/` | staff write; students see open problems | Filters `difficulty`, `status`, `course`, `tag`, `search`. Students get `my_status`. |
+| POST | `problems/{id}/publish/`, `unpublish/`, `archive/` | managers | Publish needs a test case; notifies enrolled students for course problems. |
+| GET / POST | `problems/{id}/testcases/`, `problems/{id}/testcases/import/` | managers | Samples cannot be hidden. |
+| PATCH / DELETE | `testcases/{id}/` | managers | Changes are audited. |
+| POST | `problems/{id}/run/` | students (open problems), managers | `{language, source_code, stdin?}`. Without `stdin`, runs sample cases. Not stored. 10/min. |
+| POST | `problems/{id}/submit/` | students | Judges every test case. 5/min. 503 if Judge0 is down (submission kept as error). |
+| GET | `problems/{id}/submissions/`, `code-submissions/{id}/` | owner; managers see all | Hidden case input/output only for managers. |
+| POST | `problems/{id}/rejudge/` | managers | Re-runs all submissions. |
+| GET | `problems/{id}/leaderboard/`, `me/coding/summary/` | viewers / student | |
+
+Judge0 settings in `.env`: `JUDGE0_URL`, `JUDGE0_AUTH_TOKEN`, `JUDGE0_TIMEOUT_SECONDS`. Setup: `infra/judge0/README.md`. Check a live instance with `uv run python manage.py judge0_check`.
+
+Demo data: `seed_demo_problems` (after `seed_demo_courses`) seeds languages and four problems.
+
 Scheduled jobs for production: `uv run python manage.py sweep_overdue_attempts` every minute.
 
 Demo data: `seed_demo_exams` (after `seed_demo_courses`) creates bank "DSA fundamentals", a live exam "DSA quiz 1" and a closed, graded, released "DSA diagnostic test".

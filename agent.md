@@ -4,7 +4,7 @@
 > Design: `Doc.md`. Rules: `rule.md`. Phase plans: `phases/`.
 
 **Last updated:** 2026-09-16
-**Current phase:** Phase 4 — Coding Portal (in progress). Phases 0–3 done.
+**Current phase:** Phase 4 — Coding Portal (code complete; live Judge0 verification waiting on Docker Desktop). Phases 0–3 done. Phase 5 can start in parallel.
 **Repo:** https://github.com/Aman-0402/Forge.git (branch `main`)
 
 ---
@@ -20,7 +20,7 @@
 | 1 | Accounts & Admin (users, roles, departments, audit, announcements) | `[x]` | Done 2026-09-16. 111 tests green. |
 | 2 | Courses (structure, content, enrollment, assignments, progress) | `[x]` | Done 2026-09-16. 203 tests green. Certificates deferred to Phase 5. |
 | 3 | Exams (question bank, scheduling, attempts, grading, results) | `[x]` | Done 2026-09-16. 272 tests green. |
-| 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[~]` | Started 2026-09-16. Live Judge0 blocked on Docker Desktop |
+| 4 | Coding Portal (problems, test cases, Judge0, submissions) | `[~]` | Code complete 2026-09-16, 317 tests green (1 live Judge0 test skipped). Live verification blocked on Docker Desktop. |
 | 5 | Integration, notifications, reports, deploy, frontend upgrade | `[ ]` | |
 
 ---
@@ -58,10 +58,17 @@
   - Frontend: question banks + question editor + JSON import, exams list, exam form, staff exam page (publishing, questions, attempts, results + CSV), student exam page, distraction-free exam screen (server-synced timer, autosave, palette, auto-submit, full screen, integrity events), scorecard, review + grading, my results.
   - Verified: pytest 272 passed, ruff clean, OpenAPI schema clean, `npm run build` ok, load check (200 students x 10 questions, 50 workers: 3980 answer saves, 199 submits, 0 application errors, 0 duplicate attempts; 1 connection refused by runserver), Playwright screenshots of student and staff exam flows with no console errors. Screenshot and load-test data deleted afterwards.
 
+- 2026-09-16 — **Phase 4 code complete (live Judge0 not yet verified).**
+  - `infra/judge0/`: compose file from the Judge0 CE 1.13.1 release (API bound to 127.0.0.1), config template, `setup.ps1` that writes random secrets into gitignored `judge0.conf`, README covering WSL2, Docker Desktop and cgroup v1.
+  - `apps.coding`: languages (`seed_languages` with Judge0 ids), problems (course ownership, visibility window, allowed languages, publish/unpublish/archive, course notification on publish), test cases (sample vs hidden, weights, JSON import).
+  - Judge0 client (httpx): base64 payloads, auth token, 20-item batches, polling with timeout, clear unreachable/auth errors. Tests run against an in-memory fake Judge0.
+  - Judging: run against samples or custom input (not stored); submit against all cases with per-case verdicts, weighted partial score, whitespace-tolerant comparison; hidden cases redacted for students; language and 64 KB source limits; throttles 10 runs/min and 5 submits/min; 503 with recorded error when Judge0 is down; rejudge; leaderboard; my coding summary; `judge0_check` and `seed_demo_problems` commands.
+  - Frontend: problems list, problem form, split workspace (statement, Monaco editor bundled locally with per-language drafts, run/submit output), submissions, leaderboard, staff test-case editor and rejudge, submission detail. DOMPurify pinned via npm overrides (npm audit clean).
+  - Verified: pytest 317 passed + 1 live test skipped, ruff clean, OpenAPI schema clean, `npm run build` ok, Playwright screenshots (student workspace, staff test cases, mobile) with no console errors; "runner unavailable" message confirmed in the UI.
+
 ## In progress
 
-- Phase 4: Judge0 infra files, languages, problems + test cases, Judge0 client (mocked in tests), run/submit + verdicts, submission history, leaderboard, frontend with code editor.
-
+- Phase 4 live verification — waiting for Docker Desktop (see Blocked and `phases/PHASE-4-coding-portal.md` "Still to verify").
 ## Left / next actions
 
 1. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
@@ -77,11 +84,15 @@
    - Measure exam answer-save latency under gunicorn (target p95 < 300 ms); dev runserver gave 1.3 s at 50 concurrent workers.
    - Confirm integrity-event policy with the client (currently record-only).
    - Optional: partial credit for multi-answer questions, CSV question import.
-4. Minor: oxlint `only-export-components` warnings for small helpers exported next to components (HMR only).
+4. Phase 5 items found in Phase 4:
+   - Move judging off the request thread (task queue) if submit latency or volume grows.
+   - Run Judge0 on a dedicated host/network in production (containers are privileged).
+   - Watch for a transient Windows pytest temp-dir error seen once in Phase 4 (rerun passed).
+5. Minor: oxlint `only-export-components` warnings for small helpers exported next to components (HMR only).
 
 ## Blocked
 
-- Live Judge0 execution: Docker Desktop and WSL2 are not installed on this machine (checked 2026-09-16). Needs admin rights and a reboot by the user. Everything else in Phase 4 proceeds with a mocked Judge0.
+- Live Judge0 execution: Docker Desktop and WSL2 are not installed on this machine (checked 2026-09-16). Needs admin rights and a reboot by the user. All Phase 4 code is built and tested against a fake Judge0; follow `infra/judge0/README.md`, then the "Still to verify" list in `phases/PHASE-4-coding-portal.md`.
 
 ---
 
@@ -110,12 +121,17 @@
 | 2026-09-16 | Exam live/ended state derived from the time window, not stored | No scheduler needed to flip statuses |
 | 2026-09-16 | Exam timing server-authoritative with 10 s grace; overdue attempts submitted lazily plus sweep command | Correctness without relying on client clocks |
 | 2026-09-16 | Exam screen renders outside the sidebar layout | Distraction-free test taking |
+| 2026-09-16 | Build Phase 4 against a fake Judge0 while Docker is missing | Keeps momentum; live checks listed for later |
+| 2026-09-16 | Judge synchronously in the submit request; backend compares output itself | Simplest correct design; independent of Judge0 comparison rules |
+| 2026-09-16 | Monaco bundled locally, lazy-loaded; DOMPurify pinned via npm overrides | No CDN dependency; clears npm audit |
+| 2026-09-16 | Commit commands gated on lint passing | Two lint slips reached commits in Phases 2-4 |
 
 ## Deviations from Doc.md / phase files
 
 - Frontend scaffold is React 19 + react-router 7 + Vite 8 + TypeScript 6 (current Vite template), not React 18 as first written in `Doc.md`. Doc updated.
 - Database is MySQL (MariaDB 12.3 locally) instead of PostgreSQL. Local dev uses `root` with empty password; never use outside dev.
 - Phase 1 as-built notes are listed at the end of `phases/PHASE-1-accounts-admin.md`.
+- Phase 4 as-built notes are listed at the end of `phases/PHASE-4-coding-portal.md` (runs not stored, synchronous judging, no languages/sync endpoint).
 - Phase 3 as-built notes are listed at the end of `phases/PHASE-3-exams.md` (derived exam phase instead of stored "live", JSON-only import, no partial credit).
 - Phase 2 as-built notes are listed at the end of `phases/PHASE-2-courses.md`. Frontend is no longer "minimal" as `rule.md` §5 first said; user asked for a styled UI.
 
@@ -137,3 +153,4 @@
 | 2026-09-16 | Phase 1 accounts & admin | `docs: start phase 1`, `feat(audit): audit log model, log_action service, admin api`, `feat(accounts): student/faculty profiles and department api`, `feat(notifications): in-portal notifications with email option`, `feat(accounts): admin user management api`, `feat(notifications): announcements with audience rules`, `feat(frontend): admin users, departments, audit log, notifications, announcements`, `docs: complete phase 1` |
 | 2026-09-16 | Phase 2 courses + frontend design system | `docs: start phase 2`, `feat(courses): course catalog, categories and approval flow`, `chore: normalize line endings with gitattributes`, `feat(courses): modules, chapters, lessons, content and course tree`, `feat(courses): enrollment (self, bulk, automatic rules)`, `feat(courses): lesson completion and course progress`, `feat(courses): assignments, submissions and grading`, `feat(notifications): course audience for announcements`, `chore(courses): seed_demo_courses command for local demo data`, `feat(frontend): course pages and steel design system`, `style(courses): fix line length in demo seed`, `style(frontend): temper gradient fill, full-height sidebar, mobile menu contrast`, `docs: complete phase 2` |
 | 2026-09-16 | Phase 3 exams | `docs: start phase 3`, `docs: mark phase 3 in progress`, `feat(exams): question banks, questions and JSON import`, `feat(exams): exam builder, eligibility and scheduling`, `feat(exams): attempts with server timer and auto-grading`, `feat(exams): grading queue, result release and reports`, `chore(exams): exam_load_check command for concurrency testing`, `chore(exams): seed_demo_exams command for local demo data`, `feat(frontend): question banks, exams, exam taking and results`, `style(exams): fix line length in demo exam seed`, `feat(frontend): explain exam publishing state`, `docs: complete phase 3` |
+| 2026-09-16 | Phase 4 coding portal (code complete) | `docs: start phase 4`, `chore(infra): judge0 docker compose, config template and setup`, `feat(coding): languages, problems and test cases`, `feat(coding): judge0 client with batching and polling`, `feat(coding): run, submit, verdicts, history and leaderboard`, `style(coding): fix line length in judge0_check`, `feat(frontend): coding portal with code editor`, `chore(coding): seed_demo_problems command for local demo data`, `feat(coding): notify enrolled students when a course problem is published`, `docs: phase 4 code complete` |
