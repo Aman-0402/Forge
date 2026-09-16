@@ -49,7 +49,8 @@
   - Verified: pytest 203 passed, ruff clean, OpenAPI schema clean, `npm run build` ok, Playwright screenshots via Edge at 1600px and 400px with no console errors, live API smoke of the phase definition of done (faculty builds course + PDF → submit → admin approve → student enroll → 100% completed → assignment submit → graded → notifications → PDF served). Smoke data deleted afterwards.
 
 ## In progress
-- (none)
+
+- Phase 3: question banks, exam builder + scheduling, attempts with server timer, objective auto-grading, subjective grading queue, results, integrity events, frontend.
 
 ## Left / next actions
 
