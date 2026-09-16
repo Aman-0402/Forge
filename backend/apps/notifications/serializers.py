@@ -1,7 +1,18 @@
 from django.utils import timezone
 from rest_framework import serializers
 
-from .models import Announcement, Notification
+from .models import Announcement, ContactMessage, Notification
+
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = ["name", "email", "message"]
+
+    def validate_message(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("This field may not be blank.")
+        return value
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):

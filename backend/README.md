@@ -60,6 +60,7 @@ Errors use one envelope: `{"detail": "...", "code": "...", "errors": {...}}`.
 | POST | `notifications/{id}/read/`, `notifications/read-all/` | own | |
 | GET | `notifications/unread-count/` | own | |
 | GET / POST, PATCH, DELETE | `announcements/` | any / admin, faculty | Audience `all`, `faculty`, `students`, `department`. Faculty: own department only, own posts only. |
+| POST | `contact/` | anyone | Public contact form. Saves the message and emails/notifies every active admin. |
 
 ## Courses (`/api/v1/`)
 | Method | Path | Who | Notes |

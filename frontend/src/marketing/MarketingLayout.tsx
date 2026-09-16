@@ -5,6 +5,8 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Code2, Menu, X } from "lucide-react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+import { homeFor } from "../auth/guards";
 import MarketingFooter from "./components/MarketingFooter";
 import "./styles/marketing-tokens.css";
 import "./styles/marketing-app.css";
@@ -22,6 +24,7 @@ export default function MarketingLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
     const updateHeaderState = () => setIsScrolled(window.scrollY > 20);
@@ -75,12 +78,20 @@ export default function MarketingLayout() {
               </nav>
 
               <div className="header-actions">
-                <Link to="/login" className="btn btn-outline desktop-nav-action">
-                  Log in
-                </Link>
-                <Link to="/register" className="btn btn-primary desktop-nav-action">
-                  Join free
-                </Link>
+                {user ? (
+                  <Link to={homeFor(user.role)} className="btn btn-primary desktop-nav-action">
+                    Go to dashboard
+                  </Link>
+                ) : (
+                  <>
+                    <Link to="/login" className="btn btn-outline desktop-nav-action">
+                      Log in
+                    </Link>
+                    <Link to="/register" className="btn btn-primary desktop-nav-action">
+                      Join free
+                    </Link>
+                  </>
+                )}
                 <button
                   className={`menu-toggle ${isMobileMenuOpen ? "is-open" : ""}`}
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -124,16 +135,28 @@ export default function MarketingLayout() {
                   ))}
                 </nav>
                 <div className="site-menu-actions">
-                  <Link to="/login" className="btn btn-outline" onClick={() => setIsMobileMenuOpen(false)}>
-                    Log in
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="btn btn-primary"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Join free <ArrowUpRight size={16} />
-                  </Link>
+                  {user ? (
+                    <Link
+                      to={homeFor(user.role)}
+                      className="btn btn-primary"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Go to dashboard <ArrowUpRight size={16} />
+                    </Link>
+                  ) : (
+                    <>
+                      <Link to="/login" className="btn btn-outline" onClick={() => setIsMobileMenuOpen(false)}>
+                        Log in
+                      </Link>
+                      <Link
+                        to="/register"
+                        className="btn btn-primary"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Join free <ArrowUpRight size={16} />
+                      </Link>
+                    </>
+                  )}
                 </div>
                 <p className="site-menu-note">Learn deeply. Build confidently.</p>
               </aside>

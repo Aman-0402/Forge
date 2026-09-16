@@ -1,14 +1,40 @@
+from django.contrib.auth import get_user_model
 from drf_spectacular.utils import OpenApiParameter, extend_schema, inline_serializer
-from rest_framework import mixins, serializers, viewsets
+from rest_framework import generics, mixins, permissions, serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 
 from apps.audit.mixins import AuditedModelMixin
 
 from . import announcements, services
 from .models import Announcement, Notification
-from .serializers import AnnouncementSerializer, NotificationSerializer
+from .serializers import AnnouncementSerializer, ContactMessageSerializer, NotificationSerializer
+
+User = get_user_model()
+
+
+class ContactMessageView(generics.CreateAPIView):
+    """Public contact form. Saves the message and notifies every active admin."""
+
+    serializer_class = ContactMessageSerializer
+    permission_classes = [permissions.AllowAny]
+    authentication_classes: list = []
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "auth"
+
+    def perform_create(self, serializer):
+        message = serializer.save()
+        admins = User.objects.filter(role="admin", is_active=True)
+        if admins:
+            services.notify(
+                admins,
+                f"New contact message from {message.name}",
+                f"{message.email}\n\n{message.message}",
+                kind=Notification.Kind.INFO,
+                email=True,
+            )
 
 
 class AnnouncementPermission(BasePermission):

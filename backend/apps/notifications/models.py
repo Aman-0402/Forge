@@ -33,6 +33,21 @@ class Notification(models.Model):
         return f"{self.recipient_id}: {self.title}"
 
 
+class ContactMessage(models.Model):
+    """A message from the public contact form. Not tied to a user account."""
+
+    name = models.CharField(max_length=150)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+    def __str__(self):
+        return f"{self.name} <{self.email}>"
+
+
 class Announcement(models.Model):
     class Audience(models.TextChoices):
         ALL = "all", "Everyone"
