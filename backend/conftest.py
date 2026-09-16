@@ -4,6 +4,12 @@ from rest_framework.test import APIClient
 PASSWORD = "Str0ng-Pass!word"
 
 
+@pytest.fixture(autouse=True)
+def _isolated_media(settings, tmp_path):
+    """Uploaded files in tests go to a temp dir, never to backend/media."""
+    settings.MEDIA_ROOT = tmp_path / "media"
+
+
 @pytest.fixture
 def api_client():
     return APIClient()
