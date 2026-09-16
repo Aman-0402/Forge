@@ -19,6 +19,7 @@ dependencies = [
 DJANGO_SETTINGS_MODULE = "config.settings.dev"
 python_files = ["test_*.py"]
 addopts = "-q"
+markers = ["judge0: needs a running Judge0 instance (skipped when unreachable)"]
 
 [tool.ruff]
 line-length = 100
