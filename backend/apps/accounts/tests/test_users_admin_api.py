@@ -234,7 +234,7 @@ def test_change_password_clears_must_change_flag(admin, auth_client, student_use
         {"old_password": temp, "new_password": "Brand-New#Pass1"},
         format="json",
     )
-    assert res.status_code == 204
+    assert res.status_code == 200
     student_user.refresh_from_db()
     assert not student_user.must_change_password
 

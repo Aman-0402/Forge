@@ -1,7 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
@@ -19,10 +21,27 @@ def register_student(*, email, password, first_name="", last_name=""):
     )
 
 
+def revoke_tokens(user):
+    """End every session: blacklist refresh tokens and reject older access tokens."""
+    for token in OutstandingToken.objects.filter(user=user, blacklistedtoken__isnull=True):
+        BlacklistedToken.objects.get_or_create(token=token)
+    user.tokens_valid_after = timezone.now()
+    user.save(update_fields=["tokens_valid_after", "updated_at"])
+
+
+def issue_tokens(user):
+    refresh = RefreshToken.for_user(user)
+    return {"refresh": str(refresh), "access": str(refresh.access_token)}
+
+
+@transaction.atomic
 def change_password(user, new_password):
+    """Set a new password, end all other sessions and return a fresh token pair."""
     user.set_password(new_password)
     user.must_change_password = False
     user.save(update_fields=["password", "must_change_password", "updated_at"])
+    revoke_tokens(user)
+    return issue_tokens(user)
 
 
 def blacklist_refresh_token(raw_token):

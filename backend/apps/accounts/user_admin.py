@@ -8,14 +8,13 @@ import string
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
-from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 
 from apps.audit.services import log_action
 from apps.notifications.models import Notification
 from apps.notifications.services import notify
 
 from .models import Department
-from .services import update_profile
+from .services import revoke_tokens, update_profile
 
 User = get_user_model()
 
@@ -29,12 +28,6 @@ def generate_temp_password():
     alphabet = string.ascii_letters + string.digits
     core = "".join(secrets.choice(alphabet) for _ in range(12))
     return f"{core}#{secrets.randbelow(90) + 10}"
-
-
-def revoke_tokens(user):
-    """Blacklist every outstanding refresh token for ``user``."""
-    for token in OutstandingToken.objects.filter(user=user, blacklistedtoken__isnull=True):
-        BlacklistedToken.objects.get_or_create(token=token)
 
 
 def _notify_credentials(user, temp_password, *, reset):

@@ -59,6 +59,9 @@ class User(AbstractUser):
         Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="users"
     )
     must_change_password = models.BooleanField(default=False)
+    tokens_valid_after = models.DateTimeField(
+        null=True, blank=True, help_text="Access tokens issued before this moment are rejected."
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = "email"

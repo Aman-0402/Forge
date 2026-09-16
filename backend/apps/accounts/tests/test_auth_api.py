@@ -109,7 +109,7 @@ def test_change_password_success(auth_client, student_user, password):
         {"old_password": password, "new_password": "An0ther-Str0ng!"},
         format="json",
     )
-    assert res.status_code == 204
+    assert res.status_code == 200
     student_user.refresh_from_db()
     assert student_user.check_password("An0ther-Str0ng!")
 

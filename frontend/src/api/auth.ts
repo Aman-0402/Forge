@@ -39,7 +39,13 @@ export async function fetchMe(): Promise<User> {
 }
 
 export async function changePassword(old_password: string, new_password: string): Promise<void> {
-  await api.post("/auth/change-password/", { old_password, new_password });
+  // Changing the password ends every session; the response carries the new token pair.
+  const res = await api.post<{ access: string; refresh: string }>("/auth/change-password/", {
+    old_password,
+    new_password,
+  });
+  tokens.setAccess(res.data.access);
+  tokens.setRefresh(res.data.refresh);
 }
 
 export async function logout(): Promise<void> {
