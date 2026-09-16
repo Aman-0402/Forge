@@ -19,6 +19,8 @@ No scan has run yet, so this report contains **no Strix findings**. Two prerequi
    Docker Desktop and WSL2 are also what Phase 4 (Judge0) is waiting for. See `infra/judge0/README.md`.
 2. **LLM API key.** Strix drives its agents with an LLM. None of `LLM_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` or `OPENROUTER_API_KEY` is set. A deep scan can cost several dollars; use `--max-budget`.
 
+Unblock steps: `docs/security/strix-setup.md`.
+
 ## How to run once unblocked
 
 Run from the repo root in PowerShell. Keep the dev servers running: backend on 8000, Vite on 5174.
