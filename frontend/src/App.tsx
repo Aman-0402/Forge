@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { RequireAuth, RequireRole, homeFor } from "./auth/guards";
@@ -28,6 +28,15 @@ import ExamPage from "./pages/exams/ExamPage";
 import ExamsPage from "./pages/exams/ExamsPage";
 import MyResultsPage from "./pages/exams/MyResultsPage";
 import TakeExamPage from "./pages/exams/TakeExamPage";
+import ProblemFormPage from "./pages/coding/ProblemFormPage";
+import ProblemsPage from "./pages/coding/ProblemsPage";
+
+// The code editor is large; load it only on pages that use it.
+const ProblemPage = lazy(() => import("./pages/coding/ProblemPage"));
+const SubmissionPage = lazy(() => import("./pages/coding/SubmissionPage"));
+const editorPage = (element: ReactNode) => (
+  <Suspense fallback={<p className="hint">Loading editor…</p>}>{element}</Suspense>
+);
 
 function RootRedirect() {
   const { user, loading } = useAuth();
@@ -77,6 +86,12 @@ export default function App() {
             <Route path="/attempts/:id/result" element={<AttemptResultPage />} />
             <Route path="/attempts/:id/review" element={only(["admin", "faculty"], <AttemptResultPage review />)} />
             <Route path="/my-results" element={only(["student"], <MyResultsPage />)} />
+
+            <Route path="/problems" element={<ProblemsPage />} />
+            <Route path="/problems/new" element={only(["admin", "faculty"], <ProblemFormPage />)} />
+            <Route path="/problems/:id" element={editorPage(<ProblemPage />)} />
+            <Route path="/problems/:id/edit" element={only(["admin", "faculty"], <ProblemFormPage />)} />
+            <Route path="/code-submissions/:id" element={editorPage(<SubmissionPage />)} />
 
             <Route path="/admin/users" element={only(["admin"], <UsersPage />)} />
             <Route path="/admin/departments" element={only(["admin"], <DepartmentsPage />)} />
