@@ -69,7 +69,7 @@
 ## In progress
 
 - Phase 4 live verification — waiting for Docker Desktop (see Blocked and `phases/PHASE-4-coding-portal.md` "Still to verify").
-- Phase 5: security hardening (done so far: session revocation, forced password change in the API, login lockout, one-time invite/reset links, forgot password, signed expiring file links, scheduled announcement delivery), dashboards + reports, email + certificates, performance checks, deployment + CI, frontend pages, UAT docs.
+- Phase 5: security hardening (done so far: session revocation, forced password change in the API, login lockout, one-time invite/reset links, forgot password, signed expiring file links, scheduled announcement delivery, prod settings + JSON logging + request-id middleware), dashboards + reports, email + certificates, performance checks, deployment + CI, frontend pages, UAT docs.
 ## Left / next actions
 
 1. Install Docker Desktop (WSL2 required on Windows Home) — needed by Phase 4, can be done any time.
@@ -129,6 +129,8 @@
 | 2026-09-16 | Deployment stays provider-neutral (Docker Compose + runbook); no cloud account used | Cloud and email providers are client decisions |
 | 2026-09-16 | Private uploads served via signed expiring links (6 h), not per-request auth | `<video>`/`<iframe>` cannot send bearer tokens; API already checks access before issuing links |
 | 2026-09-17 | Scheduled announcements: `delivered_at` claimed by one conditional UPDATE, cron command every minute, no Celery | Exactly-once delivery without a task queue |
+| 2026-09-17 | `prod.py` fails fast (`ImproperlyConfigured`) if `ALLOWED_HOSTS`/`CSRF_TRUSTED_ORIGINS` are unset, instead of silently refusing every request | `DEBUG=False` + empty `ALLOWED_HOSTS` is a silent footgun; caught by a unit test, not by discovering it in production |
+| 2026-09-17 | Request-id middleware runs first in `MIDDLEWARE`, id kept in a contextvar; console format in dev, JSON formatter swapped in only for prod | One id per request in every log line, without threading it through every call site; Sentry made optional (`sentry` extra) rather than a hard dependency |
 | 2026-09-16 | No v1.0.0 tag until live Judge0 is verified and client UAT is done | Tag must mean release-ready |
 
 ## Deviations from Doc.md / phase files

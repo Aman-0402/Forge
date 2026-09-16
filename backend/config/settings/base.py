@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "apps.core.middleware.RequestIDMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -173,3 +174,29 @@ JUDGE0_AUTH_TOKEN = env("JUDGE0_AUTH_TOKEN", default="")
 JUDGE0_TIMEOUT_SECONDS = env.int("JUDGE0_TIMEOUT_SECONDS", default=30)
 CODE_SOURCE_MAX_BYTES = 64_000
 CODE_OUTPUT_MAX_CHARS = 5_000
+
+# Every log line carries the request id of the request that produced it (see
+# apps/core/middleware.py). prod.py swaps the console formatter for JSON.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {
+        "request_id": {"()": "apps.core.middleware.RequestIDFilter"},
+    },
+    "formatters": {
+        "console": {
+            "format": "%(asctime)s %(levelname)s %(name)s [%(request_id)s] %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "console",
+            "filters": ["request_id"],
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": env("DJANGO_LOG_LEVEL", default="INFO"),
+    },
+}

@@ -30,7 +30,7 @@
 - [ ] Notification preferences on profile (email on/off per kind) — optional.
 
 ## 5.4 Security & hardening
-- [ ] `prod.py`: `DEBUG=False`, `SECURE_*` settings (HSTS, SSL redirect, secure cookies), `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`.
+- [x] `prod.py`: `DEBUG=False`, `SECURE_*` settings (HSTS, SSL redirect, secure cookies), `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS` (both required env vars; `require_prod_settings` raises `ImproperlyConfigured` at startup if either is unset, instead of silently refusing every request).
 - [ ] DRF throttling defaults: anon 30/min, user 300/min; login endpoint 10/min per IP.
 - [x] Password validators, account lockout after N failed logins (simple cache counter: 5 fails lock the email 15 min).
 - [x] Session revocation on password change/reset/deactivation (exact `sv` token claim) and `must_change_password` enforced in the API.
@@ -40,7 +40,7 @@
 - [ ] Judge0 not exposed publicly; backend-only network.
 - [ ] Dependency audit: `uv pip audit` / `npm audit`.
 - [ ] Run `/security-review` on the branch; fix findings.
-- [ ] Logging: structured JSON logs in prod, request id middleware, error tracking hook (Sentry DSN optional).
+- [x] Logging: `RequestIDMiddleware` stamps every request (and every log line it produces) with an id, echoed as `X-Request-ID`; console format in dev, JSON (`apps/core/logging.py`) in prod. Error tracking hook: set `SENTRY_DSN` + `uv sync --extra sentry`, optional.
 
 ## 5.5 Performance
 - [ ] Load test exam attempt flow (e.g. `locust`) with 200 concurrent students on local Compose; target p95 answer-save < 300 ms.

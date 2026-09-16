@@ -15,6 +15,9 @@ dependencies = [
     "pillow>=12.3.0",
 ]
 
+[project.optional-dependencies]
+sentry = ["sentry-sdk>=2.19"]
+
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.dev"
 python_files = ["test_*.py"]
