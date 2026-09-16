@@ -122,7 +122,10 @@ button.small, .button.small { padding: 5px 10px; font-size: 0.82rem; }
 
 /* ---------- app shell ---------- */
 
-.shell { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
+.shell {
+  display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh;
+  background: linear-gradient(90deg, var(--sidebar) var(--sidebar-w), var(--ground) var(--sidebar-w));
+}
 .sidebar {
   background: var(--sidebar); color: var(--sidebar-ink);
   display: flex; flex-direction: column; gap: 2px;
@@ -161,11 +164,11 @@ button.small, .button.small { padding: 5px 10px; font-size: 0.82rem; }
 .mobile-bar { display: none; }
 
 @media (max-width: 900px) {
-  .shell { grid-template-columns: 1fr; }
+  .shell { grid-template-columns: 1fr; background: var(--ground); }
   .sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-w); z-index: 40; transform: translateX(-100%); transition: transform 0.2s ease; }
   .sidebar.open { transform: none; }
   .mobile-bar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--sidebar); color: #fff; position: sticky; top: 0; z-index: 30; }
-  .mobile-bar button { background: transparent; border-color: rgba(255, 255, 255, 0.2); }
+  .mobile-bar button, .mobile-bar button:hover { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.3); }
   .page { padding: 20px 16px 48px; }
   h1 { font-size: 1.5rem; }
 }
@@ -213,7 +216,12 @@ td.num, th.num { text-align: right; font-family: var(--font-mono); }
 
 .temper { display: flex; align-items: center; gap: 10px; }
 .temper-track { position: relative; flex: 1; height: 8px; border-radius: 4px; background: #dfe3e9; overflow: hidden; }
-.temper-fill { position: absolute; inset: 0 auto 0 0; border-radius: 4px; transition: width 0.4s ease, background-color 0.4s ease; }
+.temper-fill {
+  position: absolute; inset: 0 auto 0 0; border-radius: inherit;
+  background-image: linear-gradient(90deg, #b0b8c4 0%, var(--straw) 22%, var(--bronze) 48%, var(--purple) 74%, var(--blue) 100%);
+  background-repeat: no-repeat;
+  transition: width 0.4s ease;
+}
 .temper-value { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-2); min-width: 3.2em; text-align: right; }
 .temper.lg .temper-track { height: 12px; border-radius: 6px; }
 .temper.lg .temper-value { font-size: 1rem; color: var(--ink); }
