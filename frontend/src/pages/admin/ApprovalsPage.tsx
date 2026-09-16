@@ -4,24 +4,23 @@ import { errorMessage } from "../../api/client";
 import { courseAction, listCourses } from "../../api/courses";
 import { useLoad } from "../../hooks/useLoad";
 import { formatDate } from "../../utils/format";
+import { promptDialog, toast } from "../../utils/notify";
 
 export default function ApprovalsPage() {
   const list = useLoad(() => listCourses({ status: "pending_approval", page_size: 50 }), []);
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   async function act(id: number, title: string, action: "approve" | "reject") {
-    setMessage("");
     setError("");
     try {
       if (action === "reject") {
-        const reason = window.prompt(`What should change in "${title}"?`);
+        const reason = await promptDialog({ title: `What should change in "${title}"?` });
         if (!reason) return;
         await courseAction(id, "reject", { reason });
-        setMessage(`Changes requested for "${title}".`);
+        toast.success(`Changes requested for "${title}".`);
       } else {
         await courseAction(id, "approve");
-        setMessage(`"${title}" is published.`);
+        toast.success(`"${title}" is published.`);
       }
       list.reload();
     } catch (err) {
@@ -37,7 +36,6 @@ export default function ApprovalsPage() {
           <h1>Course approvals</h1>
         </div>
       </div>
-      {message && <p className="notice">{message}</p>}
       {(error || list.error) && <p className="error">{error || list.error}</p>}
       {list.data?.results.length === 0 && (
         <div className="empty">

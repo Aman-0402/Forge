@@ -17,6 +17,7 @@ import { errorMessage } from "../../api/client";
 import Pager from "../../components/Pager";
 import { useLoad } from "../../hooks/useLoad";
 import { formatDate, fullName } from "../../utils/format";
+import { alertDialog, confirmDialog, toast } from "../../utils/notify";
 
 const PROFILE_FIELDS: Record<Role, string[]> = {
   student: ["roll_number", "batch", "year"],
@@ -24,12 +25,24 @@ const PROFILE_FIELDS: Record<Role, string[]> = {
   admin: [],
 };
 
+/** Shows a blocking dialog for a message containing a one-time link (easy to miss
+ * as a toast that vanishes), a toast otherwise. */
+async function announceResult(message: string) {
+  if (/https?:\/\//.test(message)) {
+    await alertDialog({
+      title: "Done",
+      html: message.replace(/(https?:\/\/\S+)/, '<a href="$1" target="_blank" rel="noreferrer">$1</a>'),
+      icon: "success",
+    });
+  } else {
+    toast.success(message);
+  }
+}
+
 export default function UsersPage() {
   const [filters, setFilters] = useState({ search: "", role: "", is_active: "" });
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<AdminUser | "new" | null>(null);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
 
   const users = useLoad(() => listUsers({ ...filters, page }), [filters, page]);
   const departments = useLoad(listDepartments, []);
@@ -40,13 +53,11 @@ export default function UsersPage() {
   };
 
   async function run(action: () => Promise<string>) {
-    setMessage("");
-    setError("");
     try {
-      setMessage(await action());
+      await announceResult(await action());
       users.reload();
     } catch (err) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     }
   }
 
@@ -57,9 +68,6 @@ export default function UsersPage() {
         <button onClick={() => setEditing("new")}>New user</button>
       </div>
 
-      {message && <p className="notice">{message}</p>}
-      {error && <p className="error">{error}</p>}
-
       {editing && (
         <UserForm
           user={editing === "new" ? null : editing}
@@ -67,7 +75,7 @@ export default function UsersPage() {
           onCancel={() => setEditing(null)}
           onSaved={(msg) => {
             setEditing(null);
-            setMessage(msg);
+            announceResult(msg);
             users.reload();
           }}
         />
@@ -124,26 +132,32 @@ export default function UsersPage() {
                   </button>
                   <button
                     className="link"
-                    onClick={() =>
-                      window.confirm(`Reset password for ${u.email}?`) &&
+                    onClick={async () => {
+                      const ok = await confirmDialog({ title: `Reset password for ${u.email}?` });
+                      if (!ok) return;
                       run(async () => {
                         const link = await resetPassword(u.id);
                         return `Reset link emailed to ${u.email}. It works once: ${link}`;
-                      })
-                    }
+                      });
+                    }}
                   >
                     Reset password
                   </button>
                   {u.is_active ? (
                     <button
                       className="link danger"
-                      onClick={() =>
-                        window.confirm(`Deactivate ${u.email}? They will be signed out.`) &&
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: `Deactivate ${u.email}?`,
+                          text: "They will be signed out.",
+                          danger: true,
+                        });
+                        if (!ok) return;
                         run(async () => {
                           await deactivateUser(u.id);
                           return `${u.email} deactivated.`;
-                        })
-                      }
+                        });
+                      }}
                     >
                       Deactivate
                     </button>

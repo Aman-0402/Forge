@@ -10,6 +10,7 @@ import {
   type LiveAttempt,
 } from "../../api/exams";
 import { TYPE_LABEL, formatDuration } from "../../utils/examLabels";
+import { confirmDialog } from "../../utils/notify";
 
 type Draft = { ids: number[]; text: string };
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -289,11 +290,15 @@ export default function TakeExamPage() {
             ) : (
               <button
                 disabled={submitting}
-                onClick={() =>
-                  window.confirm(
-                    `Submit now? ${questions.length - answeredCount} questions are unanswered. You cannot change answers after submitting.`,
-                  ) && submit(false)
-                }
+                onClick={async () => {
+                  const ok = await confirmDialog({
+                    title: "Submit now?",
+                    text: `${questions.length - answeredCount} questions are unanswered. You cannot change answers after submitting.`,
+                    danger: true,
+                    confirmText: "Submit",
+                  });
+                  if (ok) submit(false);
+                }}
               >
                 {submitting ? "Submitting…" : "Submit exam"}
               </button>
@@ -322,9 +327,15 @@ export default function TakeExamPage() {
           <button
             className="danger submit-all"
             disabled={submitting}
-            onClick={() =>
-              window.confirm(`Submit now? ${questions.length - answeredCount} questions are unanswered.`) && submit(false)
-            }
+            onClick={async () => {
+              const ok = await confirmDialog({
+                title: "Submit now?",
+                text: `${questions.length - answeredCount} questions are unanswered.`,
+                danger: true,
+                confirmText: "Submit",
+              });
+              if (ok) submit(false);
+            }}
           >
             Submit exam
           </button>

@@ -13,6 +13,7 @@ import Pager from "../../components/Pager";
 import TemperBar from "../../components/TemperBar";
 import { useLoad } from "../../hooks/useLoad";
 import { formatDate } from "../../utils/format";
+import { confirmDialog } from "../../utils/notify";
 
 export default function StudentsTab({ course }: { course: Course }) {
   const [view, setView] = useState<"progress" | "roster">("progress");
@@ -32,7 +33,7 @@ export default function StudentsTab({ course }: { course: Course }) {
   );
 
   async function remove(id: number, email: string) {
-    if (!window.confirm(`Remove ${email} from this course? Their progress is kept.`)) return;
+    if (!(await confirmDialog({ title: `Remove ${email} from this course? Their progress is kept.`, danger: true }))) return;
     setError("");
     try {
       await removeEnrollment(id);

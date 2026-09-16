@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { createDepartment, deleteDepartment, listDepartments } from "../../api/admin";
 import { errorMessage } from "../../api/client";
 import { useLoad } from "../../hooks/useLoad";
+import { confirmDialog } from "../../utils/notify";
 
 export default function DepartmentsPage() {
   const departments = useLoad(listDepartments, []);
@@ -21,7 +22,7 @@ export default function DepartmentsPage() {
   }
 
   async function onDelete(id: number, code: string) {
-    if (!window.confirm(`Delete department ${code}? Users keep their accounts.`)) return;
+    if (!(await confirmDialog({ title: `Delete department ${code}? Users keep their accounts.`, danger: true }))) return;
     setError("");
     try {
       await deleteDepartment(id);

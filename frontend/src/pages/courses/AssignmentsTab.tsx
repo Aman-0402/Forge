@@ -4,6 +4,7 @@ import { errorMessage } from "../../api/client";
 import { createAssignment, deleteAssignment, listAssignments, type Course } from "../../api/courses";
 import { useLoad } from "../../hooks/useLoad";
 import { formatDate } from "../../utils/format";
+import { confirmDialog } from "../../utils/notify";
 
 export default function AssignmentsTab({ course }: { course: Course }) {
   const list = useLoad(() => listAssignments(course.id), [course.id]);
@@ -12,7 +13,7 @@ export default function AssignmentsTab({ course }: { course: Course }) {
   const manager = course.can_manage;
 
   async function remove(id: number, title: string) {
-    if (!window.confirm(`Delete "${title}" and all its submissions?`)) return;
+    if (!(await confirmDialog({ title: `Delete "${title}" and all its submissions?`, danger: true }))) return;
     try {
       await deleteAssignment(id);
       list.reload();

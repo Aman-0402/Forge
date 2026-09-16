@@ -13,6 +13,7 @@ import {
   type CourseTree,
 } from "../../api/courses";
 import { useAuth } from "../../auth/AuthContext";
+import { confirmDialog, promptDialog } from "../../utils/notify";
 
 type Level = "modules" | "chapters" | "lessons" | "content";
 
@@ -53,8 +54,10 @@ export default function ManageTab({
     run(() => reorderNodes(level, parentId, next));
   };
 
-  const remove = (level: Level, id: number, name: string) =>
-    window.confirm(`Delete "${name}" and everything inside it?`) && run(() => deleteNode(level, id));
+  const remove = async (level: Level, id: number, name: string) => {
+    const ok = await confirmDialog({ title: `Delete "${name}" and everything inside it?`, danger: true });
+    if (ok) run(() => deleteNode(level, id));
+  };
 
   const s = course.status;
 
@@ -88,8 +91,8 @@ export default function ManageTab({
             <button
               className="secondary"
               disabled={busy}
-              onClick={() => {
-                const reason = window.prompt("What should the instructor change?");
+              onClick={async () => {
+                const reason = await promptDialog({ title: "What should the instructor change?" });
                 if (reason) run(() => courseAction(course.id, "reject", { reason }));
               }}
             >
@@ -100,7 +103,11 @@ export default function ManageTab({
             <button
               className="secondary"
               disabled={busy}
-              onClick={() => window.confirm("Archive this course?") && run(() => courseAction(course.id, "archive"))}
+              onClick={async () => {
+                if (await confirmDialog({ title: "Archive this course?" })) {
+                  run(() => courseAction(course.id, "archive"));
+                }
+              }}
             >
               Archive
             </button>
@@ -109,10 +116,10 @@ export default function ManageTab({
             <button
               className="danger"
               disabled={busy}
-              onClick={() =>
-                window.confirm("Delete this draft permanently?") &&
-                run(() => deleteCourse(course.id), () => navigate("/courses"))
-              }
+              onClick={async () => {
+                const ok = await confirmDialog({ title: "Delete this draft permanently?", danger: true });
+                if (ok) run(() => deleteCourse(course.id), () => navigate("/courses"));
+              }}
             >
               Delete draft
             </button>
@@ -231,7 +238,7 @@ function Rename({ level, id, title, onDone }: { level: Level; id: number; title:
     <button
       className="link"
       onClick={async () => {
-        const next = window.prompt("New title", title);
+        const next = await promptDialog({ title: "New title", defaultValue: title });
         if (next && next !== title) {
           await updateNode(level, id, { title: next });
           onDone();

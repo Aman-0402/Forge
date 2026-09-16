@@ -23,6 +23,7 @@ import Pager from "../../components/Pager";
 import { useLoad } from "../../hooks/useLoad";
 import { DIFFICULTY_LABEL, VERDICT_CLASS, VERDICT_LABEL } from "../../utils/codingLabels";
 import { formatDate } from "../../utils/format";
+import { confirmDialog, toast } from "../../utils/notify";
 
 type Tab = "problem" | "submissions" | "leaderboard" | "tests";
 
@@ -166,7 +167,12 @@ function Workspace({ problem: p, reload }: { problem: Problem; reload: () => voi
           </select>
           <button
             className="link"
-            onClick={() => language && window.confirm("Replace your code with the starter template?") && setCode(language.default_template)}
+            onClick={async () => {
+              if (!language) return;
+              if (await confirmDialog({ title: "Replace your code with the starter template?" })) {
+                setCode(language.default_template);
+              }
+            }}
           >
             Reset
           </button>
@@ -408,16 +414,13 @@ function Leaderboard({ problemId, tick }: { problemId: number; tick: number }) {
 }
 
 function StaffBar({ problem: p, onChange }: { problem: Problem; onChange: () => void }) {
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  async function run(action: () => Promise<unknown>, done?: string) {
-    setMessage("");
+  async function run(action: () => Promise<unknown>) {
     setError("");
     try {
       await action();
-      if (done) setMessage(done);
       onChange();
     } catch (err) {
       setError(errorMessage(err));
@@ -447,18 +450,18 @@ function StaffBar({ problem: p, onChange }: { problem: Problem; onChange: () => 
         )}
         <button
           className="secondary small"
-          onClick={() =>
-            window.confirm("Re-run every submission against the current test cases?") &&
+          onClick={async () => {
+            const ok = await confirmDialog({ title: "Re-run every submission against the current test cases?" });
+            if (!ok) return;
             run(async () => {
               const r = await rejudgeProblem(p.id);
-              setMessage(`Rejudged ${r.rejudged} submissions${r.failed ? `, ${r.failed} failed` : ""}.`);
-            })
-          }
+              toast.success(`Rejudged ${r.rejudged} submissions${r.failed ? `, ${r.failed} failed` : ""}.`);
+            });
+          }}
         >
           Rejudge all
         </button>
       </div>
-      {message && <p className="notice">{message}</p>}
       {error && <p className="error">{error}</p>}
     </div>
   );

@@ -7,6 +7,7 @@ import { StatusChip, plateCode } from "../../components/CourseCard";
 import TemperBar from "../../components/TemperBar";
 import { useLoad } from "../../hooks/useLoad";
 import { formatDate } from "../../utils/format";
+import { confirmDialog } from "../../utils/notify";
 import AssignmentsTab from "./AssignmentsTab";
 import LearnTab from "./LearnTab";
 import ManageTab from "./ManageTab";
@@ -140,7 +141,13 @@ export default function CoursePage() {
             <button
               className="secondary small"
               disabled={busy}
-              onClick={() => window.confirm("Leave this course? Your progress is kept.") && run(() => dropCourse(c.id))}
+              onClick={async () => {
+                const ok = await confirmDialog({
+                  title: "Leave this course?",
+                  text: "Your progress is kept.",
+                });
+                if (ok) run(() => dropCourse(c.id));
+              }}
             >
               Leave course
             </button>

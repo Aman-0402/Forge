@@ -23,6 +23,7 @@ import Pager from "../../components/Pager";
 import { useLoad } from "../../hooks/useLoad";
 import { ATTEMPT_LABEL, PHASE_CLASS, PHASE_LABEL, TYPE_LABEL } from "../../utils/examLabels";
 import { formatDate } from "../../utils/format";
+import { confirmDialog, promptDialog, toast } from "../../utils/notify";
 
 type Tab = "overview" | "questions" | "attempts" | "results";
 
@@ -219,10 +220,13 @@ function StaffExam({ exam: e, reload }: { exam: Exam; reload: () => void }) {
               <button
                 className="secondary"
                 disabled={busy}
-                onClick={() =>
-                  window.confirm("Close the exam now? Students still writing are submitted automatically.") &&
-                  run(() => examAction(e.id, "close"))
-                }
+                onClick={async () => {
+                  const ok = await confirmDialog({
+                    title: "Close the exam now?",
+                    text: "Students still writing are submitted automatically.",
+                  });
+                  if (ok) run(() => examAction(e.id, "close"));
+                }}
               >
                 Close now
               </button>
@@ -237,9 +241,10 @@ function StaffExam({ exam: e, reload }: { exam: Exam; reload: () => void }) {
             <button
               className="danger"
               disabled={busy}
-              onClick={() =>
-                window.confirm("Delete this draft exam?") && run(() => deleteExam(e.id), () => navigate("/exams"))
-              }
+              onClick={async () => {
+                const ok = await confirmDialog({ title: "Delete this draft exam?", danger: true });
+                if (ok) run(() => deleteExam(e.id), () => navigate("/exams"));
+              }}
             >
               Delete draft
             </button>
@@ -289,14 +294,17 @@ function ExtendButton({ exam, onDone }: { exam: Exam; onDone: () => void }) {
     <button
       className="secondary"
       onClick={async () => {
-        const minutes = window.prompt("Extend the closing time by how many minutes?", "30");
+        const minutes = await promptDialog({
+          title: "Extend the closing time by how many minutes?",
+          defaultValue: "30",
+        });
         if (!minutes || Number(minutes) <= 0) return;
         const ends = new Date(new Date(exam.ends_at).getTime() + Number(minutes) * 60000);
         try {
           await extendExam(exam.id, ends.toISOString());
           onDone();
         } catch (err) {
-          window.alert(errorMessage(err));
+          toast.error(errorMessage(err));
         }
       }}
     >
@@ -348,8 +356,13 @@ function QuestionsTab({ exam, onChange }: { exam: Exam; onChange: () => void }) 
                 <div className="row">
                   <button
                     className="link"
-                    onClick={() => {
-                      const value = window.prompt("Marks for this question in this exam (blank = use the bank's marks)", row.marks_override ?? "");
+                    onClick={async () => {
+                      const value = await promptDialog({
+                        title: "Marks for this question in this exam",
+                        placeholder: "blank = use the bank's marks",
+                        defaultValue: row.marks_override ?? "",
+                        allowBlank: true,
+                      });
                       if (value === null) return;
                       run(() => updateExamQuestion(exam.id, row.id, { marks_override: value.trim() || null }));
                     }}

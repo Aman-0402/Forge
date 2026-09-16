@@ -16,6 +16,7 @@ import {
 import Pager from "../../components/Pager";
 import { useLoad } from "../../hooks/useLoad";
 import { TYPE_LABEL } from "../../utils/examLabels";
+import { confirmDialog } from "../../utils/notify";
 
 export default function BankPage() {
   const id = Number(useParams().id);
@@ -134,7 +135,11 @@ export default function BankPage() {
                   </button>
                   <button
                     className="link danger"
-                    onClick={() => window.confirm("Delete this question?") && run(() => deleteQuestion(q.id))}
+                    onClick={async () => {
+                      if (await confirmDialog({ title: "Delete this question?", danger: true })) {
+                        run(() => deleteQuestion(q.id));
+                      }
+                    }}
                   >
                     Delete
                   </button>

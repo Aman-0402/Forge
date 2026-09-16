@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { api, errorMessage } from "../../api/client";
 import { createCategory, listCategories } from "../../api/courses";
 import { useLoad } from "../../hooks/useLoad";
+import { confirmDialog } from "../../utils/notify";
 
 export default function CategoriesPage() {
   const list = useLoad(listCategories, []);
@@ -22,7 +23,7 @@ export default function CategoriesPage() {
   }
 
   async function remove(id: number, label: string) {
-    if (!window.confirm(`Delete category "${label}"? Courses keep their other categories.`)) return;
+    if (!(await confirmDialog({ title: `Delete category "${label}"? Courses keep their other categories.`, danger: true }))) return;
     try {
       await api.delete(`/categories/${id}/`);
       list.reload();

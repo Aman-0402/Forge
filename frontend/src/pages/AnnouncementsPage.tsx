@@ -12,6 +12,7 @@ import { useAuth } from "../auth/AuthContext";
 import Pager from "../components/Pager";
 import { useLoad } from "../hooks/useLoad";
 import { formatDate } from "../utils/format";
+import { confirmDialog } from "../utils/notify";
 
 const AUDIENCE_LABEL: Record<Audience, string> = {
   all: "Everyone",
@@ -29,7 +30,7 @@ export default function AnnouncementsPage() {
   const canPost = user?.role === "admin" || user?.role === "faculty";
 
   async function onDelete(id: number) {
-    if (!window.confirm("Delete this announcement?")) return;
+    if (!(await confirmDialog({ title: "Delete this announcement?", danger: true }))) return;
     setError("");
     try {
       await deleteAnnouncement(id);
