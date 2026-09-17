@@ -50,3 +50,15 @@ class ReportsOverviewSerializer(serializers.Serializer):
     coding_submissions_by_verdict = CountRowSerializer(many=True)
     problems_by_difficulty = CountRowSerializer(many=True)
     contact_messages_total = serializers.IntegerField()
+
+
+class DailyActivitySerializer(serializers.Serializer):
+    date = serializers.DateField()
+    new_users = serializers.IntegerField()
+    new_enrollments = serializers.IntegerField()
+    exam_attempts = serializers.IntegerField()
+    code_submissions = serializers.IntegerField()
+
+
+class TimeseriesSerializer(serializers.Serializer):
+    days = DailyActivitySerializer(many=True)

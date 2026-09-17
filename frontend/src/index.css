@@ -461,6 +461,7 @@ textarea.mono { font-family: var(--font-mono); font-size: 0.85rem; }
 /* ---------- analytics ---------- */
 
 .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.chart-grid.single { grid-template-columns: 1fr; }
 .chart-card { margin-bottom: 0; }
 .chart-card .panel-head { margin-bottom: 4px; }
 

@@ -155,3 +155,14 @@ export type ReportsOverview = {
 
 export const getReportsOverview = async () =>
   (await api.get<ReportsOverview>("/reports/overview/")).data;
+
+export type DailyActivity = {
+  date: string;
+  new_users: number;
+  new_enrollments: number;
+  exam_attempts: number;
+  code_submissions: number;
+};
+
+export const getReportsTimeseries = async (days: number) =>
+  (await api.get<{ days: DailyActivity[] }>("/reports/timeseries/", { params: { days } })).data.days;

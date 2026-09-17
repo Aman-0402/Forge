@@ -16,7 +16,7 @@
 - [ ] End-to-end scenario test (pytest, single test module) walking admin → faculty → student through all three modules.
 
 ## 5.2 Reports & analytics (admin)
-- [x] `reports/overview/` (2026-09-17): users by role + active/inactive, courses by status, enrollments by status, top 8 courses by active enrollment, exam pass/fail/ungraded, coding submissions by verdict, problems by difficulty, contact message count. Frontend `/admin/analytics`: 6 stat tiles + 5 donut charts + 2 bar charts (recharts), verified in both light and dark theme against live seeded data. No CSV export, no judge-health check, no "this month/this week" time windows — plain running totals only.
+- [x] `reports/overview/` (2026-09-17): users by role + active/inactive, courses by status, enrollments by status, top 8 courses by active enrollment, exam pass/fail/ungraded, coding submissions by verdict, problems by difficulty, contact message count. Plus `reports/timeseries/` (?days=1-180): daily new users/enrollments/exam attempts/code submissions, for a trend line chart. Frontend `/admin/analytics`: 6 stat tiles always visible + a tab bar (Overview/Users/Courses/Exams/Coding, 1-3 charts per tab instead of all 7 at once) — Overview holds the line chart with 7/30/90-day filter buttons; the rest hold 5 donut charts and 2 bar charts (recharts). Verified in both light and dark theme against live seeded data. No CSV export, no judge-health check.
 - [ ] `reports/courses/`: enrollment counts, completion rates, avg progress per course; CSV export.
 - [ ] `reports/exams/`: attempts, avg/median score, pass rate, integrity event counts per exam; CSV export.
 - [ ] `reports/coding/`: problems solved, acceptance rate per problem, top students.

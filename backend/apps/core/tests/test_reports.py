@@ -95,3 +95,48 @@ def test_overview_handles_empty_platform(auth_client, admin_user):
 
 def data_or_empty(data, key):
     return data[key]
+
+
+# ---------- timeseries (activity over time, for the line chart) ----------
+
+TS_URL = "/api/v1/reports/timeseries/"
+
+
+def test_timeseries_admin_only(auth_client, student_user, api_client):
+    assert api_client.get(TS_URL).status_code in (401, 403)
+    assert auth_client(student_user).get(TS_URL).status_code == 403
+
+
+def test_timeseries_default_range_and_shape(auth_client, admin_user):
+    res = auth_client(admin_user).get(TS_URL)
+    assert res.status_code == 200, res.data
+    assert len(res.data["days"]) == 30
+    first = res.data["days"][0]
+    assert set(first.keys()) == {
+        "date",
+        "new_users",
+        "new_enrollments",
+        "exam_attempts",
+        "code_submissions",
+    }
+
+
+@pytest.mark.parametrize(
+    "days,expected", [("7", 7), ("90", 90), ("3", 3), ("365", 180), ("abc", 30)]
+)
+def test_timeseries_days_query_param(auth_client, admin_user, days, expected):
+    res = auth_client(admin_user).get(f"{TS_URL}?days={days}")
+    assert res.status_code == 200
+    assert len(res.data["days"]) == expected
+
+
+def test_timeseries_counts_fall_on_the_right_day(auth_client, admin_user, student_user):
+    course = CourseFactory(instructor=admin_user, status="published")
+    EnrollmentFactory(course=course, student=student_user, status="active")
+    UserFactory(role="student")
+
+    res = auth_client(admin_user).get(f"{TS_URL}?days=7")
+    today = res.data["days"][-1]
+    assert today["date"] == timezone.localdate().isoformat()
+    assert today["new_users"] >= 1
+    assert today["new_enrollments"] >= 1

@@ -1,10 +1,12 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
   Legend,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -12,7 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { getReportsOverview, type CountRow } from "../../api/admin";
+import { getReportsOverview, getReportsTimeseries, type CountRow } from "../../api/admin";
 import { useLoad } from "../../hooks/useLoad";
 import { formatDate } from "../../utils/format";
 
@@ -72,7 +74,78 @@ function DonutCard({ title, rows, total }: { title: string; rows: CountRow[]; to
   );
 }
 
+const DAY_RANGES = [7, 30, 90] as const;
+const ACTIVITY_LINES: { key: "new_users" | "new_enrollments" | "exam_attempts" | "code_submissions"; label: string }[] = [
+  { key: "new_users", label: "New users" },
+  { key: "new_enrollments", label: "New enrollments" },
+  { key: "exam_attempts", label: "Exam attempts" },
+  { key: "code_submissions", label: "Code submissions" },
+];
+
+// Dates from the API are plain "YYYY-MM-DD" (no time, no zone). Format them by
+// parsing the parts directly rather than via `new Date(iso)`, which treats a
+// date-only string as UTC midnight and can shift a day off in local timezones.
+function dayLabel(iso: string, withYear = false) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  return date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: withYear ? "numeric" : undefined });
+}
+
+function ActivityOverTime() {
+  const [days, setDays] = useState<(typeof DAY_RANGES)[number]>(30);
+  const series = useLoad(() => getReportsTimeseries(days), [days]);
+
+  return (
+    <ChartCard title="Activity over time">
+      <div className="row" style={{ marginBottom: 10 }} role="group" aria-label="Date range">
+        {DAY_RANGES.map((n) => (
+          <button
+            key={n}
+            type="button"
+            className={n === days ? "small" : "secondary small"}
+            onClick={() => setDays(n)}
+          >
+            {n}d
+          </button>
+        ))}
+      </div>
+      {series.error && <p className="error">{series.error}</p>}
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={series.data ?? []}>
+          <CartesianGrid stroke="var(--line)" strokeDasharray="3 3" />
+          <XAxis dataKey="date" tickFormatter={(d) => dayLabel(d)} tick={AXIS_TICK} minTickGap={24} />
+          <YAxis allowDecimals={false} tick={AXIS_TICK} />
+          <Tooltip contentStyle={TOOLTIP_STYLE} labelFormatter={(d) => dayLabel(String(d), true)} />
+          <Legend wrapperStyle={LEGEND_STYLE} />
+          {ACTIVITY_LINES.map((line, i) => (
+            <Line
+              key={line.key}
+              type="monotone"
+              dataKey={line.key}
+              name={line.label}
+              stroke={PALETTE[i % PALETTE.length]}
+              strokeWidth={2}
+              dot={false}
+            />
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  );
+}
+
+const SECTIONS = ["overview", "users", "courses", "exams", "coding"] as const;
+type Section = (typeof SECTIONS)[number];
+const SECTION_LABEL: Record<Section, string> = {
+  overview: "Overview",
+  users: "Users",
+  courses: "Courses & enrollment",
+  exams: "Exams",
+  coding: "Coding",
+};
+
 export default function AnalyticsPage() {
+  const [section, setSection] = useState<Section>("overview");
   const report = useLoad(getReportsOverview, []);
   const data = report.data;
 
@@ -120,74 +193,97 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          <div className="chart-grid">
-            <DonutCard
-              title="Users by role"
-              rows={data.users_by_role}
-              total={data.users_by_role.reduce((n, r) => n + r.count, 0)}
-            />
-            <DonutCard title="Courses by status" rows={data.courses_by_status} />
-            <DonutCard title="Enrollments by status" rows={data.enrollments_by_status} />
-            <DonutCard
-              title="Exam results"
-              rows={[
-                { label: "passed", count: data.exam_pass_fail.passed },
-                { label: "failed", count: data.exam_pass_fail.failed },
-                { label: "ungraded", count: data.exam_pass_fail.ungraded },
-              ].filter((r) => r.count > 0)}
-            />
-            <DonutCard title="Problems by difficulty" rows={data.problems_by_difficulty} />
-
-            <ChartCard title="Code submissions by verdict">
-              {data.coding_submissions_by_verdict.length === 0 ? (
-                <p className="empty">No judged submissions yet.</p>
-              ) : (
-                <ResponsiveContainer width="100%" height={240}>
-                  <BarChart data={data.coding_submissions_by_verdict} layout="vertical" margin={{ left: 24 }}>
-                    <CartesianGrid stroke="var(--line)" strokeDasharray="3 3" horizontal={false} />
-                    <XAxis type="number" allowDecimals={false} tick={AXIS_TICK} />
-                    <YAxis
-                      type="category"
-                      dataKey="label"
-                      width={110}
-                      tickFormatter={titleCase}
-                      tick={AXIS_TICK}
-                    />
-                    <Tooltip
-                      contentStyle={TOOLTIP_STYLE}
-                      formatter={(v) => [String(v), "Submissions"]}
-                      labelFormatter={(l) => titleCase(String(l))}
-                    />
-                    <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                      {data.coding_submissions_by_verdict.map((_, i) => (
-                        <Cell key={i} fill={PALETTE[i % PALETTE.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </ChartCard>
-
-            <ChartCard title="Top courses by active enrollment" subtitle="up to 8">
-              {data.top_courses_by_enrollment.length === 0 ? (
-                <p className="empty">No active enrollments yet.</p>
-              ) : (
-                <ResponsiveContainer width="100%" height={240}>
-                  <BarChart data={data.top_courses_by_enrollment}>
-                    <CartesianGrid stroke="var(--line)" strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="code" tick={AXIS_TICK} />
-                    <YAxis allowDecimals={false} tick={AXIS_TICK} />
-                    <Tooltip
-                      contentStyle={TOOLTIP_STYLE}
-                      formatter={(v) => [String(v), "Enrolled"]}
-                      labelFormatter={(code, payload) => String(payload?.[0]?.payload?.course ?? code)}
-                    />
-                    <Bar dataKey="count" fill={PALETTE[0]} radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </ChartCard>
+          <div className="tabs" role="tablist">
+            {SECTIONS.map((key) => (
+              <button key={key} role="tab" aria-selected={section === key} onClick={() => setSection(key)}>
+                {SECTION_LABEL[key]}
+              </button>
+            ))}
           </div>
+
+          {section === "overview" && (
+            <div className="chart-grid single">
+              <ActivityOverTime />
+            </div>
+          )}
+
+          {section === "users" && (
+            <div className="chart-grid">
+              <DonutCard
+                title="Users by role"
+                rows={data.users_by_role}
+                total={data.users_by_role.reduce((n, r) => n + r.count, 0)}
+              />
+            </div>
+          )}
+
+          {section === "courses" && (
+            <div className="chart-grid">
+              <DonutCard title="Courses by status" rows={data.courses_by_status} />
+              <DonutCard title="Enrollments by status" rows={data.enrollments_by_status} />
+              <ChartCard title="Top courses by active enrollment" subtitle="up to 8">
+                {data.top_courses_by_enrollment.length === 0 ? (
+                  <p className="empty">No active enrollments yet.</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart data={data.top_courses_by_enrollment}>
+                      <CartesianGrid stroke="var(--line)" strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="code" tick={AXIS_TICK} />
+                      <YAxis allowDecimals={false} tick={AXIS_TICK} />
+                      <Tooltip
+                        contentStyle={TOOLTIP_STYLE}
+                        formatter={(v) => [String(v), "Enrolled"]}
+                        labelFormatter={(code, payload) => String(payload?.[0]?.payload?.course ?? code)}
+                      />
+                      <Bar dataKey="count" fill={PALETTE[0]} radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </ChartCard>
+            </div>
+          )}
+
+          {section === "exams" && (
+            <div className="chart-grid">
+              <DonutCard
+                title="Exam results"
+                rows={[
+                  { label: "passed", count: data.exam_pass_fail.passed },
+                  { label: "failed", count: data.exam_pass_fail.failed },
+                  { label: "ungraded", count: data.exam_pass_fail.ungraded },
+                ].filter((r) => r.count > 0)}
+              />
+            </div>
+          )}
+
+          {section === "coding" && (
+            <div className="chart-grid">
+              <DonutCard title="Problems by difficulty" rows={data.problems_by_difficulty} />
+              <ChartCard title="Code submissions by verdict">
+                {data.coding_submissions_by_verdict.length === 0 ? (
+                  <p className="empty">No judged submissions yet.</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart data={data.coding_submissions_by_verdict} layout="vertical" margin={{ left: 24 }}>
+                      <CartesianGrid stroke="var(--line)" strokeDasharray="3 3" horizontal={false} />
+                      <XAxis type="number" allowDecimals={false} tick={AXIS_TICK} />
+                      <YAxis type="category" dataKey="label" width={110} tickFormatter={titleCase} tick={AXIS_TICK} />
+                      <Tooltip
+                        contentStyle={TOOLTIP_STYLE}
+                        formatter={(v) => [String(v), "Submissions"]}
+                        labelFormatter={(l) => titleCase(String(l))}
+                      />
+                      <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                        {data.coding_submissions_by_verdict.map((_, i) => (
+                          <Cell key={i} fill={PALETTE[i % PALETTE.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </ChartCard>
+            </div>
+          )}
         </>
       )}
     </>

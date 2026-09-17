@@ -66,6 +66,7 @@ Errors use one envelope: `{"detail": "...", "code": "...", "errors": {...}}`.
 | PATCH | `site-settings/` | admin | Partial update; takes effect immediately for every visitor, no deploy needed. |
 | GET / POST, PATCH, DELETE | `marketing-stats/` | anyone / admin | The 3 highlight numbers on the public home page. Ordered by `order`. |
 | GET | `reports/overview/` | admin | Aggregate counts for the analytics dashboard: users by role, courses by status, enrollments by status, top 8 courses by active enrollment, exam pass/fail/ungraded, coding submissions by verdict, problems by difficulty, contact message total. Plain running totals, no CSV export. |
+| GET | `reports/timeseries/` | admin | `?days=` (1-180, default 30; unparsable falls back to the default). Daily counts of new users, new enrollments, exam attempts and code submissions — feeds the analytics dashboard's line chart. |
 
 ## Courses (`/api/v1/`)
 | Method | Path | Who | Notes |

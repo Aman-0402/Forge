@@ -1,4 +1,4 @@
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import permissions, viewsets
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 from rest_framework.response import Response
@@ -14,6 +14,7 @@ from .serializers import (
     MarketingStatSerializer,
     ReportsOverviewSerializer,
     SiteSettingsSerializer,
+    TimeseriesSerializer,
 )
 
 
@@ -79,3 +80,21 @@ class ReportsOverviewView(APIView):
     @extend_schema(responses=ReportsOverviewSerializer)
     def get(self, request):
         return Response(ReportsOverviewSerializer(reports.overview()).data)
+
+
+class ReportsTimeseriesView(APIView):
+    """Daily activity counts for the analytics dashboard's trend line chart.
+
+    ?days=N (1-180, default 30) filters the window; anything unparsable falls
+    back to the default rather than 400ing over what's just a display filter.
+    """
+
+    permission_classes = [IsAdmin]
+
+    @extend_schema(
+        parameters=[OpenApiParameter("days", int, description="1-180, default 30")],
+        responses=TimeseriesSerializer,
+    )
+    def get(self, request):
+        data = reports.timeseries(request.query_params.get("days"))
+        return Response(TimeseriesSerializer(data).data)
