@@ -4,6 +4,7 @@ import { unreadCount } from "../api/notifications";
 import { useAuth } from "../auth/AuthContext";
 import { homeFor } from "../auth/guards";
 import MaintenanceBanner from "../components/MaintenanceBanner";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -73,6 +74,7 @@ export default function Layout() {
         )}
 
         <div className="sidebar-foot">
+          <ThemeToggle />
           <div className="who">
             <strong>{`${user.first_name} ${user.last_name}`.trim() || user.email}</strong>
             <span>{roleLabel}</span>

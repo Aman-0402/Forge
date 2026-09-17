@@ -1,6 +1,7 @@
 import { lazy, Suspense, type ReactNode } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
+import { ThemeProvider } from "./theme/ThemeContext";
 import { RequireAuth, RequireRole } from "./auth/guards";
 import AnnouncementsPage from "./pages/AnnouncementsPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
@@ -62,6 +63,7 @@ const only = (roles: ("admin" | "faculty" | "student")[], element: ReactNode) =>
 
 export default function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -139,5 +141,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </ThemeProvider>
   );
 }

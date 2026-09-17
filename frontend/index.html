@@ -11,6 +11,16 @@
       rel="stylesheet"
     />
     <title>Forge LMS</title>
+    <script>
+      // Applies the saved theme before first paint, so there's no flash of the
+      // wrong theme. Kept in sync with theme/ThemeContext.tsx's storage key.
+      (function () {
+        try {
+          var pref = localStorage.getItem("forge.theme");
+          if (pref === "light" || pref === "dark") document.documentElement.dataset.theme = pref;
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
