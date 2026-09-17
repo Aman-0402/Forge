@@ -62,6 +62,7 @@ export default function Layout() {
         {user.role === "admin" && (
           <>
             <div className="nav-group">Administration</div>
+            <NavLink to="/admin/analytics">Analytics</NavLink>
             <NavLink to="/admin/approvals">Course approvals</NavLink>
             <NavLink to="/admin/users">Users</NavLink>
             <NavLink to="/admin/departments">Departments</NavLink>

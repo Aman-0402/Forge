@@ -458,6 +458,12 @@ textarea.mono { font-family: var(--font-mono); font-size: 0.85rem; }
 .stat-value { font-family: var(--font-display); font-stretch: 112%; font-weight: 700; font-size: 1.4rem; }
 .stat-label { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); }
 
+/* ---------- analytics ---------- */
+
+.chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.chart-card { margin-bottom: 0; }
+.chart-card .panel-head { margin-bottom: 4px; }
+
 /* taking an exam: no sidebar, calm surface, one question at a time */
 .exam-shell { min-height: 100vh; background: var(--ground); }
 .exam-bar {

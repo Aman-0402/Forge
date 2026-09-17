@@ -65,6 +65,7 @@ Errors use one envelope: `{"detail": "...", "code": "...", "errors": {...}}`.
 | GET | `site-settings/` | anyone | `registration_open`, `maintenance_mode`, `maintenance_message`. Always the one singleton row. |
 | PATCH | `site-settings/` | admin | Partial update; takes effect immediately for every visitor, no deploy needed. |
 | GET / POST, PATCH, DELETE | `marketing-stats/` | anyone / admin | The 3 highlight numbers on the public home page. Ordered by `order`. |
+| GET | `reports/overview/` | admin | Aggregate counts for the analytics dashboard: users by role, courses by status, enrollments by status, top 8 courses by active enrollment, exam pass/fail/ungraded, coding submissions by verdict, problems by difficulty, contact message total. Plain running totals, no CSV export. |
 
 ## Courses (`/api/v1/`)
 | Method | Path | Who | Notes |

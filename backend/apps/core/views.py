@@ -7,8 +7,14 @@ from rest_framework.views import APIView
 from apps.audit.mixins import AuditedModelMixin
 from apps.audit.services import log_action
 
+from . import reports
 from .models import MarketingStat, SiteSettings
-from .serializers import MarketingStatSerializer, SiteSettingsSerializer
+from .permissions import IsAdmin
+from .serializers import (
+    MarketingStatSerializer,
+    ReportsOverviewSerializer,
+    SiteSettingsSerializer,
+)
 
 
 class _IsAdmin(BasePermission):
@@ -63,3 +69,13 @@ class MarketingStatViewSet(AuditedModelMixin, viewsets.ModelViewSet):
     permission_classes = [PublicReadAdminWrite]
     audit_prefix = "marketing_stat"
     pagination_class = None
+
+
+class ReportsOverviewView(APIView):
+    """Aggregate counts for the admin analytics dashboard."""
+
+    permission_classes = [IsAdmin]
+
+    @extend_schema(responses=ReportsOverviewSerializer)
+    def get(self, request):
+        return Response(ReportsOverviewSerializer(reports.overview()).data)

@@ -13,6 +13,7 @@ import SetPasswordPage from "./pages/SetPasswordPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import MarketingLayout from "./marketing/MarketingLayout";
 import PublicHome from "./marketing/pages/PublicHome";
+import AnalyticsPage from "./pages/admin/AnalyticsPage";
 import ApprovalsPage from "./pages/admin/ApprovalsPage";
 import AuditLogPage from "./pages/admin/AuditLogPage";
 import CategoriesPage from "./pages/admin/CategoriesPage";
@@ -116,6 +117,7 @@ export default function App() {
             <Route path="/problems/:id/edit" element={only(["admin", "faculty"], <ProblemFormPage />)} />
             <Route path="/code-submissions/:id" element={editorPage(<SubmissionPage />)} />
 
+            <Route path="/admin/analytics" element={only(["admin"], <AnalyticsPage />)} />
             <Route path="/admin/users" element={only(["admin"], <UsersPage />)} />
             <Route path="/admin/departments" element={only(["admin"], <DepartmentsPage />)} />
             <Route path="/admin/categories" element={only(["admin"], <CategoriesPage />)} />

@@ -137,3 +137,21 @@ export const getSiteSettings = async () => (await api.get<SiteSettings>("/site-s
 
 export const updateSiteSettings = async (body: Partial<SiteSettings>) =>
   (await api.patch<SiteSettings>("/site-settings/", body)).data;
+
+export type CountRow = { label: string; count: number };
+
+export type ReportsOverview = {
+  generated_at: string;
+  users_by_role: CountRow[];
+  users_active: { active: number; inactive: number };
+  courses_by_status: CountRow[];
+  enrollments_by_status: CountRow[];
+  top_courses_by_enrollment: { course: string; code: string; count: number }[];
+  exam_pass_fail: { passed: number; failed: number; ungraded: number };
+  coding_submissions_by_verdict: CountRow[];
+  problems_by_difficulty: CountRow[];
+  contact_messages_total: number;
+};
+
+export const getReportsOverview = async () =>
+  (await api.get<ReportsOverview>("/reports/overview/")).data;
